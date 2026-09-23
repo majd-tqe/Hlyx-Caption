@@ -1,0 +1,375 @@
+<!-- Hlyx Caption original UI source — SPDX-License-Identifier: GPL-3.0-or-later
+     Copyright (C) 2026 Hlyx Caption Contributors -->
+<!DOCTYPE html>
+<!--
+HLA Mod Settings Panel — "Resistance Terminal" redesign.
+Ultralight-based HTML/CSS/JS UI.
+Theme: HEV hazard-orange on dark, notched cards, reticle wordmark, Arabic/English.
+Layout: hazard cap + top bar + header (title/reticle) + scrolling main
+        (settings column | divider | tab list) + footer stripe + action bar.
+Panel: 36vw of the screen, anchored to the language side, slides in/out.
+-->
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-i18n="page.title">Hlyx Caption — إعدادات الترجمة</title>
+    <link rel="stylesheet" href="settings.css" />
+</head>
+<body>
+    <!-- ===================== STARTUP BANNER ===================== -->
+    <!-- Mod branding shown at the top-center of the screen on game start.
+         Fades in, holds ~5s, then fades out (see banner-lifecycle in CSS).
+         pointer-events:none so it never intercepts mouse input. -->
+    <div id="hud-banner">
+        <div class="banner-row">
+            <img id="banner-logo" alt="" src="{{BANNER_URI}}" />
+            <span class="banner-title" data-i18n="brand.title">Hlyx Caption</span>
+        </div>
+        <div class="banner-hints">
+            <span class="hint"><span class="kbd">F10</span> <span data-i18n="hints.settings">قائمة الإعدادات</span></span>
+            <span class="hint-sep">&#8226;</span>
+            <span class="hint"><span class="kbd">F11</span> <span id="banner-translation" data-i18n="translation.enabled">الترجمة مفعلة</span></span>
+        </div>
+    </div>
+
+    <div class="app" id="app">
+
+        <!-- ===================== HAZARD STRIPE CAP ===================== -->
+        <div class="hazard-bar" aria-hidden="true"></div>
+
+        <!-- ===================== TOP BAR ===================== -->
+        <header class="topbar">
+            <div class="topbar-right">
+                <span class="brand-badge" data-i18n="brand.badge">الإعدادات</span>
+                <span class="brand">Hlyx Caption</span>
+            </div>
+            <div class="topbar-left">
+                <button class="key-btn" id="btn-close">
+                    <span data-i18n="actions.close">إغلاق</span><span class="key">F10</span>
+                </button>
+                <button class="key-btn on" id="btn-hl-toggle" type="button" aria-pressed="true">
+                    <span data-i18n="translation.enabled">الترجمة مفعلة</span><span class="key">F11</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- ===================== HEADER / TITLE ===================== -->
+        <div class="header">
+            <div class="header-title">
+                <span class="eyebrow">RESISTANCE TERMINAL</span>
+                <h1 data-i18n="brand.title">Hlyx Caption</h1>
+                <p class="header-sub">
+                    <span data-i18n="stats.font_size">حجم الخط:</span> <b id="stat-font-size">34px</b>
+                    <span class="stat-sep">•</span>
+                    <span data-i18n="stats.spacing">تباعد:</span> <b id="stat-line-spacing">1.30</b>
+                    <span class="stat-sep">•</span>
+                    <span data-i18n="stats.reference">مقياس:</span> <b id="stat-reference-height">1080px</b>
+                </p>
+            </div>
+            <div class="reticle" aria-hidden="true">
+                <span class="corner tl"></span>
+                <span class="corner tr"></span>
+                <span class="corner bl"></span>
+                <span class="corner br"></span>
+                <div class="watermark">HLA<br>LYX</div>
+            </div>
+        </div>
+
+        <!-- ===================== MAIN (settings + tabs) ===================== -->
+        <div class="main">
+
+            <div class="panel-col content">
+
+                <!-- ============ النص (Text / Typography) ============ -->
+                <section id="text" class="active">
+                    <div class="card notched">
+                        <h2 data-i18n="sections.typography">الطباعة</h2>
+                        <div class="card-body">
+                            <div class="slider-row">
+                                <div class="slider-info">
+                                    <span class="slider-label" data-i18n="labels.font_size">حجم الخط</span>
+                                    <span class="slider-value" id="font_size_out">34.0 px</span>
+                                </div>
+                                <input type="range" id="font_size" min="14" max="64" step="1" value="34" />
+                            </div>
+
+                            <div class="slider-row">
+                                <div class="slider-info">
+                                    <span class="slider-label" data-i18n="labels.line_spacing">تباعد الأسطر</span>
+                                    <span class="slider-value" id="line_spacing_out">1.30</span>
+                                </div>
+                                <input type="range" id="line_spacing" min="0.8" max="2.5" step="0.05" value="1.3" />
+                            </div>
+
+                            <div class="slider-row">
+                                <div class="slider-info">
+                                    <span class="slider-label" data-i18n="labels.reference_height">الهامش الرئيسي</span>
+                                    <span class="slider-value" id="font_size_reference_height_out">1080 px</span>
+                                </div>
+                                <input type="range" id="font_size_reference_height" min="600" max="2160" step="10" value="1080" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card notched">
+                        <h2 data-i18n="sections.alignment">المحاذاة</h2>
+                        <div class="card-body">
+                            <div class="seg-control" id="text_alignment">
+                                <span class="seg-label" data-i18n="labels.alignment">المحاذاة</span>
+                                <div class="seg-buttons">
+                                    <button class="seg-btn" data-value="2" data-i18n="values.right">يمين</button>
+                                    <button class="seg-btn selected" data-value="1" data-i18n="values.center">وسط</button>
+                                    <button class="seg-btn" data-value="0" data-i18n="values.left">يسار</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============ اللون (Color) ============ -->
+                <section id="color">
+                    <div class="card notched">
+                        <h2 data-i18n="sections.text_color">لون النص</h2>
+                        <div class="card-body">
+                            <div class="color-preview-large" id="text-preview">Aa</div>
+
+                            <div class="slider-row">
+                                <div class="slider-info">
+                                    <span class="slider-label" data-i18n="labels.red">أحمر (R)</span>
+                                    <span class="slider-value" id="text_r_out">255</span>
+                                </div>
+                                <input type="range" class="color-r" id="text_r" min="0" max="255" value="255" />
+                            </div>
+
+                            <div class="slider-row">
+                                <div class="slider-info">
+                                    <span class="slider-label" data-i18n="labels.green">أخضر (G)</span>
+                                    <span class="slider-value" id="text_g_out">255</span>
+                                </div>
+                                <input type="range" class="color-g" id="text_g" min="0" max="255" value="255" />
+                            </div>
+
+                            <div class="slider-row">
+                                <div class="slider-info">
+                                    <span class="slider-label" data-i18n="labels.blue">أزرق (B)</span>
+                                    <span class="slider-value" id="text_b_out">255</span>
+                                </div>
+                                <input type="range" class="color-b" id="text_b" min="0" max="255" value="255" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============ الحدود (Border / Outline) ============ -->
+                <section id="border">
+                    <div class="card notched">
+                        <h2 data-i18n="sections.outline">الحدود (Outline)</h2>
+                        <div class="card-body">
+                            <div class="toggle-row">
+                                <span class="slider-label" data-i18n="labels.outline_enabled">تفعيل الحدود</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="outline_enabled" checked />
+                                    <span class="switch-track"><span class="switch-knob"></span></span>
+                                </label>
+                            </div>
+
+                            <div class="slider-row">
+                                <div class="slider-info">
+                                    <span class="slider-label" data-i18n="labels.outline_thickness">سمك الحدود</span>
+                                    <span class="slider-value" id="outline_thickness_out">3.0 px</span>
+                                </div>
+                                <input type="range" id="outline_thickness" min="0" max="10" step="0.5" value="3.0" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============ الظل (Shadow) ============ -->
+                <section id="shadow">
+                    <div class="card notched">
+                        <h2 data-i18n="sections.shadow">الظل</h2>
+                        <div class="card-body">
+                            <div class="toggle-row">
+                                <span class="slider-label" data-i18n="labels.shadow_enabled">إضافة ظل</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="shadow_enabled" />
+                                    <span class="switch-track"><span class="switch-knob"></span></span>
+                                </label>
+                            </div>
+
+                            <div class="slider-row">
+                                <div class="slider-info">
+                                    <span class="slider-label" data-i18n="labels.shadow_offset_x">سمك الظل (offset X)</span>
+                                    <span class="slider-value" id="shadow_offset_x_out">4.0 px</span>
+                                </div>
+                                <input type="range" id="shadow_offset_x" min="-10" max="20" step="0.5" value="4.0" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============ الموقع (Position) ============ -->
+                <section id="position">
+                    <div class="card notched">
+                        <h2 data-i18n="sections.position">موضع النصوص</h2>
+                        <div class="card-body">
+                            <div class="slider-row">
+                                <div class="slider-info">
+                                    <span class="slider-label" data-i18n="labels.position_x">الموضع الأفقي (X)</span>
+                                    <span class="slider-value" id="pos_x_out">50%</span>
+                                </div>
+                                <input type="range" id="pos_x" min="0.0" max="1.0" step="0.01" value="0.50" />
+                            </div>
+
+                            <div class="slider-row">
+                                <div class="slider-info">
+                                    <span class="slider-label" data-i18n="labels.position_y">الموضع العمودي (Y)</span>
+                                    <span class="slider-value" id="pos_y_out">80%</span>
+                                </div>
+                                <input type="range" id="pos_y" min="0.0" max="1.0" step="0.01" value="0.80" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============ التوقيت (Timing) ============ -->
+                <section id="timing">
+                    <div class="card notched">
+                        <h2 data-i18n="sections.timing">التوقيت</h2>
+                        <div class="card-body">
+                            <div class="slider-row">
+                                <div class="slider-info">
+                                    <span class="slider-label" data-i18n="labels.fade_in">الظهور (fade-in)</span>
+                                    <span class="slider-value" id="fade_in_time_out">0.20s</span>
+                                </div>
+                                <input type="range" id="fade_in_time" min="0.05" max="1.5" step="0.05" value="0.20" />
+                            </div>
+
+                            <div class="slider-row">
+                                <div class="slider-info">
+                                    <span class="slider-label" data-i18n="labels.fade_out">الاختفاء (fade-out)</span>
+                                    <span class="slider-value" id="fade_out_time_out">0.50s</span>
+                                </div>
+                                <input type="range" id="fade_out_time" min="0.05" max="2.0" step="0.05" value="0.50" />
+                            </div>
+
+                            <div class="slider-row">
+                                <div class="slider-info">
+                                    <span class="slider-label" data-i18n="labels.extra_time">الوقت الإضافي للجملة</span>
+                                    <span class="slider-value" id="extra_display_time_out">1.00s</span>
+                                </div>
+                                <input type="range" id="extra_display_time" min="0.0" max="3.0" step="0.05" value="1.0" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============ الخط (Font) ============ -->
+                <section id="reading">
+                    <div class="card notched">
+                        <h2 data-i18n="sections.font">الخط</h2>
+                        <div class="card-body">
+                            <!-- Custom HTML dropdown (no native <select> popup:
+                                 the WebKit popup needs focus that the embedded
+                                 view loses in-game, so the FIRST click on a
+                                 native select never opens its list). Options are
+                                 built by hlaFonts.setList from the font files in
+                                 {ModDir}/resources (ttf/otf/ttc/otc/woff/woff2). -->
+                            <div class="text-input-row">
+                                <span class="slider-label" data-i18n="labels.custom_font">الخط المخصص</span>
+                                <div class="fdrop font-select" id="custom_font_path">
+                                    <button type="button" class="fdrop-btn" tabindex="0">
+                                        <span class="fdrop-value">Cairo-Regular.ttf</span>
+                                        <span class="fdrop-arrow" aria-hidden="true"></span>
+                                    </button>
+                                    <ul class="fdrop-list" role="listbox"></ul>
+                                </div>
+                            </div>
+
+                            <div class="text-input-row">
+                                <span class="slider-label" data-i18n="labels.fallback_font">خط احتياطي</span>
+                                <div class="fdrop font-select" id="fallback_font_path">
+                                    <button type="button" class="fdrop-btn" tabindex="0">
+                                        <span class="fdrop-value">Cairo-Regular.ttf</span>
+                                        <span class="fdrop-arrow" aria-hidden="true"></span>
+                                    </button>
+                                    <ul class="fdrop-list" role="listbox"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============ عام (General: interface language) ============ -->
+                <section id="general">
+                    <div class="card notched">
+                        <h2 data-i18n="sections.language">اللغة</h2>
+                        <div class="card-body">
+                            <div class="text-input-row">
+                                <span class="slider-label" data-i18n="labels.ui_language">لغة الواجهة</span>
+                                <div class="fdrop" id="ui_language">
+                                    <button type="button" class="fdrop-btn" tabindex="0">
+                                        <span class="fdrop-value" data-i18n="languages.arabic">العربية</span>
+                                        <span class="fdrop-arrow" aria-hidden="true"></span>
+                                    </button>
+                                    <ul class="fdrop-list" role="listbox">
+                                        <li class="fdrop-item" data-value="1" data-i18n="languages.english">English</li>
+                                        <li class="fdrop-item selected" data-value="2" data-i18n="languages.arabic">العربية</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <div class="divider" aria-hidden="true"></div>
+
+            <!-- ===================== TAB LIST ===================== -->
+            <nav class="tabs-col" id="tabGroup">
+                <button class="tab nav-item active" data-tab="text">
+                    <span class="dot"></span><span class="tab-icon">Aa</span><span data-i18n="tabs.text">النص</span>
+                </button>
+                <button class="tab nav-item" data-tab="color">
+                    <span></span><span class="tab-icon">#</span><span data-i18n="tabs.color">اللون</span>
+                </button>
+                <button class="tab nav-item" data-tab="border">
+                    <span></span><span class="tab-icon">O</span><span data-i18n="tabs.outline">الحدود</span>
+                </button>
+                <button class="tab nav-item" data-tab="shadow">
+                    <span></span><span class="tab-icon">S</span><span data-i18n="tabs.shadow">الظل</span>
+                </button>
+                <button class="tab nav-item" data-tab="position">
+                    <span></span><span class="tab-icon">P</span><span data-i18n="tabs.position">الموقع</span>
+                </button>
+                <button class="tab nav-item" data-tab="timing">
+                    <span></span><span class="tab-icon">T</span><span data-i18n="tabs.timing">التوقيت</span>
+                </button>
+                <button class="tab nav-item" data-tab="reading">
+                    <span></span><span class="tab-icon">M</span><span data-i18n="tabs.font">الخط</span>
+                </button>
+                <button class="tab nav-item" data-tab="general">
+                    <span></span><span class="tab-icon">G</span><span data-i18n="tabs.general">عام</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- ===================== FOOTER ===================== -->
+        <div class="footer-stripe" aria-hidden="true"></div>
+        <footer class="footer">
+            <button id="btn-preview" class="btn btn-hev" data-i18n="actions.preview">معاينة</button>
+            <div class="footer-center">
+                <button id="btn-apply" class="btn btn-orange" data-i18n="actions.save">حفظ</button>
+                <button id="btn-reset" class="btn btn-red" data-i18n="actions.reset">استعادة الافتراضي</button>
+            </div>
+            <div class="footer-spacer" aria-hidden="true"></div>
+        </footer>
+
+    </div>
+
+    <script src="bindings.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "hlyx-caption",
+  "version-string": "0.9.4",
+  "description": "Native text shaping dependencies for Hlyx Caption",
+  "dependencies": [
+    "brotli",
+    "bzip2",
+    "freetype",
+    "fribidi",
+    "harfbuzz",
+    "libpng",
+    "zlib"
+  ]
+}

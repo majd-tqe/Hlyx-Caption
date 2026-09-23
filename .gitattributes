@@ -1,0 +1,14 @@
+* text=auto
+
+# Keep Visual Studio project files in the native Windows line ending format.
+*.sln text eol=crlf
+*.vcxproj text eol=crlf
+*.vcxproj.filters text eol=crlf
+
+# Keep documentation, manifests, and CI files portable across platforms.
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.mjs text eol=lf
+*.js text eol=lf

@@ -1,0 +1,22 @@
+{
+  "name": "hlyx_caption",
+  "version": "0.9.4",
+  "description": "Documentation tooling for the Hlyx Caption project",
+  "private": true,
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "npm run docs:build",
+    "docs:dev": "vitepress dev docs/wiki --host 127.0.0.1 --port 5173",
+    "docs:build": "vitepress build docs/wiki",
+    "docs:preview": "vitepress preview docs/wiki --host 127.0.0.1 --port 4173"
+  },
+  "keywords": [],
+  "author": "Hlyx Caption contributors",
+  "license": "GPL-3.0-or-later",
+  "type": "commonjs",
+  "devDependencies": {
+    "vitepress": "^2.0.0-alpha.20"
+  }
+}

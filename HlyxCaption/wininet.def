@@ -1,0 +1,11 @@
+LIBRARY "wininet"
+
+EXPORTS
+  InternetOpenA
+  InternetOpenUrlA
+  InternetCloseHandle
+  InternetCrackUrlA
+  HttpQueryInfoA
+  InternetSetStatusCallback = InternetSetStatusCallbackA
+  InternetSetStatusCallbackA
+  InternetReadFile

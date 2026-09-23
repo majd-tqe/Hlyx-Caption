@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <VcpkgApplocalDeps>false</VcpkgApplocalDeps>
+    <VcpkgEnabled>false</VcpkgEnabled>
+    <ProjectGuid>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</ProjectGuid>
+    <RootNamespace>HlyxCaption</RootNamespace>
+    <TargetName>wininet</TargetName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+    <!-- Set VCPKG_ROOT and ULTRALIGHT_SDK_ROOT in the environment, or pass
+         VcpkgRoot/UltralightSdkRoot as MSBuild properties. The local SDK
+         fallback keeps existing developer checkouts working. -->
+    <VcpkgRoot Condition="'$(VcpkgRoot)'=='' and '$(VCPKG_ROOT)'!=''">$(VCPKG_ROOT)</VcpkgRoot>
+    <VcpkgRoot Condition="'$(VcpkgRoot)'==''">$(ProjectDir)..\vcpkg</VcpkgRoot>
+    <UltralightSdkRoot Condition="'$(UltralightSdkRoot)'=='' and '$(ULTRALIGHT_SDK_ROOT)'!=''">$(ULTRALIGHT_SDK_ROOT)</UltralightSdkRoot>
+    <UltralightSdkRoot Condition="'$(UltralightSdkRoot)'==''">$(ProjectDir)vendor\Ultralight</UltralightSdkRoot>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;HLYXCAPTION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)minhook-detours-src;$(ProjectDir)minhook-detours-src\SlimDetours;$(ProjectDir)minhook-detours-src\phnt;$(VcpkgRoot)\installed\x64-windows-static-md\include;$(ProjectDir)imgui;$(ProjectDir)imgui\backends;$(ProjectDir)imgui\misc\cpp;$(UltralightSdkRoot)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>$(VcpkgRoot)\installed\x64-windows-static-md\debug\lib\harfbuzz.lib;$(VcpkgRoot)\installed\x64-windows-static-md\debug\lib\fribidi.lib;$(VcpkgRoot)\installed\x64-windows-static-md\debug\lib\freetyped.lib;$(VcpkgRoot)\installed\x64-windows-static-md\debug\lib\brotlicommon.lib;$(VcpkgRoot)\installed\x64-windows-static-md\debug\lib\brotlidec.lib;$(VcpkgRoot)\installed\x64-windows-static-md\debug\lib\bz2d.lib;$(VcpkgRoot)\installed\x64-windows-static-md\debug\lib\libpng16d.lib;$(VcpkgRoot)\installed\x64-windows-static-md\debug\lib\zlibd.lib;d3d11.lib;dxgi.lib;ntdll.lib;$(UltralightSdkRoot)\lib\Ultralight.lib;$(UltralightSdkRoot)\lib\UltralightCore.lib;$(UltralightSdkRoot)\lib\AppCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/NODEFAULTLIB:brotlicommon.lib /NODEFAULTLIB:brotlidec.lib %(AdditionalOptions)</AdditionalOptions>
+      <ModuleDefinitionFile>wininet.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;HLYXCAPTION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)minhook-detours-src;$(ProjectDir)minhook-detours-src\SlimDetours;$(ProjectDir)minhook-detours-src\phnt;$(VcpkgRoot)\installed\x64-windows-static-md\include;$(ProjectDir)imgui;$(ProjectDir)imgui\backends;$(ProjectDir)imgui\misc\cpp;$(UltralightSdkRoot)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <Optimization>MaxSpeed</Optimization>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>$(VcpkgRoot)\installed\x64-windows-static-md\lib\harfbuzz.lib;$(VcpkgRoot)\installed\x64-windows-static-md\lib\freetype.lib;$(VcpkgRoot)\installed\x64-windows-static-md\lib\fribidi.lib;$(VcpkgRoot)\installed\x64-windows-static-md\lib\brotlicommon.lib;$(VcpkgRoot)\installed\x64-windows-static-md\lib\brotlidec.lib;$(VcpkgRoot)\installed\x64-windows-static-md\lib\bz2.lib;$(VcpkgRoot)\installed\x64-windows-static-md\lib\libpng16.lib;$(VcpkgRoot)\installed\x64-windows-static-md\lib\zlib.lib;d3d11.lib;dxgi.lib;ntdll.lib;$(UltralightSdkRoot)\lib\Ultralight.lib;$(UltralightSdkRoot)\lib\UltralightCore.lib;$(UltralightSdkRoot)\lib\AppCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/NODEFAULTLIB:brotlicommon.lib /NODEFAULTLIB:brotlidec.lib %(AdditionalOptions)</AdditionalOptions>
+      <ModuleDefinitionFile>wininet.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="arabic_fallback.h" />
+    <ClInclude Include="arabic_fallback_data.h" />
+    <ClInclude Include="banner_config.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="config_parse.h" />
+    <ClInclude Include="renderer.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="shaper.h" />
+    <ClInclude Include="ui_ultralight\UltralightManager.h" />
+    <ClInclude Include="ui_ultralight\UltralightPlatform.h" />
+    <ClInclude Include="ui_ultralight\UltralightBlit.h" />
+    <ClInclude Include="ui_ultralight\ui_exports.h" />
+    <ClInclude Include="imgui\imconfig.h" />
+    <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\imstb_rectpack.h" />
+    <ClInclude Include="imgui\imstb_textedit.h" />
+    <ClInclude Include="imgui\imstb_truetype.h" />
+    <ClInclude Include="imgui\backends\imgui_impl_win32.h" />
+    <ClInclude Include="imgui\backends\imgui_impl_dx11.h" />
+    <ClInclude Include="imgui\misc\cpp\imgui_stdlib.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="minhook-detours-src\MinHook.c">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="minhook-detours-src\SlimDetours\Transaction.c">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="minhook-detours-src\SlimDetours\Trampoline.c">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="minhook-detours-src\SlimDetours\Thread.c">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="minhook-detours-src\SlimDetours\Memory.c">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="minhook-detours-src\SlimDetours\Disassembler.c">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="minhook-detours-src\SlimDetours\Instruction.c">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="minhook-detours-src\SlimDetours\InlineHook.c">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="arabic_fallback.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="config_parse.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="hooks.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="proxy.cpp" />
+    <ClCompile Include="renderer.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="shaper.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="caption_parser.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="caption_queue.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="caption_texture.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ui_ultralight\UltralightManager.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ui_ultralight\UltralightPlatform.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ui_ultralight\UltralightBlit.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ui_ultralight\ui_exports.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_draw.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_tables.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_widgets.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="imgui\backends\imgui_impl_win32.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="imgui\backends\imgui_impl_dx11.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="imgui\misc\cpp\imgui_stdlib.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="version.rc" />
+
+</ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
+  </ImportGroup>
+</Project>

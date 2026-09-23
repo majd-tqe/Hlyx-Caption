@@ -1,0 +1,1391 @@
+/* Hlyx Caption original UI source — SPDX-License-Identifier: GPL-3.0-or-later
+   Copyright (C) 2026 Hlyx Caption Contributors
+   =========================================================== */
+/* ===========================================================
+   settings.css - HLA Mod Settings Panel
+   Theme: "Resistance Terminal" — HEV hazard-orange on dark,
+   notched HUD cards, reticle wordmark, Arabic/English.
+   Panel: 36vw of the screen, anchored to the language side, slides in/out.
+   =========================================================== */
+
+:root {
+    /* Base surfaces */
+    --bg:        #07090b;
+    --app-bg:    #0d1013;
+    --panel-bg:  #12161a;
+    --border:        #242b2c;
+    --border-soft:   #1a1f21;
+    --text:      #eef1f2;
+    --text-dim:  #8a9394;
+    --text-faint:#333c3d;
+
+    /* HEV hazard orange */
+    --hazard:        #e2812f;
+    --hazard-bright: #f39a49;
+    --hazard-dim:    #7a4a20;
+    --hazard-glow:   rgba(226, 129, 47, 0.35);
+
+    /* HEV teal + rose */
+    --hev:        #4bb9a8;
+    --hev-bright: #6fd8c4;
+    --rose:       #d6636d;
+
+    /* Fonts (offline-safe stacks; Cairo/Oxanium/JetBrains used if installed) */
+    --mono:   "JetBrains Mono", "Consolas", "Courier New", monospace;
+    --tech:   "Oxanium", "Segoe UI", Tahoma, sans-serif;
+    --arabic: "Cairo", "Segoe UI", Tahoma, sans-serif;
+
+    --transition: 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ============== Font self-hosting (no Google Fonts in-game) ==============
+   Bundled files in assets/fonts/:
+     - Cairo-Latin.woff2      (covers Latin + Latin-Ext + Vietnamese subsets)
+     - Cairo-Arabic.woff2     (covers the Arabic subset — used for the panel text)
+     - JetBrainsMono-Latin.woff2
+     - Oxanium-Latin.woff2
+   Each file is a variable font, so a single file covers all weights (400/600/700/900).
+   If the file is missing the @font-face fails silently and we fall back to the
+   system stack declared on :root (Tahoma on Windows). */
+@font-face {
+    font-family: "Cairo";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("fonts/Cairo-Latin.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+                   U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+                   U+2212, U+2215, U+FEFF, U+FFFD,
+                   U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+                   U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF,
+                   U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+    font-family: "Cairo";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("fonts/Cairo-Arabic.woff2") format("woff2");
+    unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1,
+                   U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF,
+                   U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4,
+                   U+10EFC-10EFF, U+1EE00-1EE03, U+1EE05-1EE1F, U+1EE21-1EE22, U+1EE24,
+                   U+1EE27, U+1EE29-1EE32, U+1EE34-1EE37, U+1EE39, U+1EE3B, U+1EE42,
+                   U+1EE47, U+1EE49, U+1EE4B, U+1EE4D-1EE4F, U+1EE51-1EE52, U+1EE54,
+                   U+1EE57, U+1EE59, U+1EE5B, U+1EE5D, U+1EE5F, U+1EE61-1EE62, U+1EE64,
+                   U+1EE67-1EE6A, U+1EE6C-1EE72, U+1EE74-1EE77, U+1EE79-1EE7C, U+1EE7E,
+                   U+1EE80-1EE89, U+1EE8B-1EE9B, U+1EEA1-1EEA3, U+1EEA5-1EEA9,
+                   U+1EEAB-1EEBB, U+1EEF0-1EEF1;
+}
+@font-face {
+    font-family: "JetBrains Mono";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("fonts/JetBrainsMono-Latin.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+                   U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+                   U+2212, U+2215, U+FEFF, U+FFFD,
+                   U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+                   U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF,
+                   U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+    font-family: "Oxanium";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("fonts/Oxanium-Latin.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+                   U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+                   U+2212, U+2215, U+FEFF, U+FFFD,
+                   U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+                   U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF,
+                   U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ============== Reset & Base ============== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--arabic);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text);
+    /* Page itself is transparent — only the anchored .app panel
+       paints over the game behind it. The panel's bg-color is set on
+       .app so it stays fully opaque regardless of any gradient layer. */
+    background: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    direction: rtl;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+}
+
+/* English uses the same panel geometry but switches content flow and text
+   alignment to LTR. The native language value toggles this class at runtime. */
+body.ui-ltr { direction: ltr; }
+body.ui-ltr .header-title { text-align: left; }
+body.ui-ltr .header-sub { text-align: left; }
+body.ui-ltr .panel-col {
+    direction: ltr;
+    text-align: left;
+}
+body.ui-ltr .text-input-row .slider-label { text-align: left; }
+body.ui-ltr .tabs-col {
+    direction: ltr;
+    text-align: left;
+}
+body.ui-ltr .tab {
+    display: grid;
+    grid-template-columns: 6px 20px minmax(0, 1fr);
+    justify-content: initial;
+    column-gap: 10px;
+    text-align: left;
+}
+body.ui-ltr .main {
+    grid-template-columns: 170px 1px minmax(0, 1fr);
+}
+body.ui-ltr .tabs-col {
+    grid-column: 1;
+    grid-row: 1;
+    border-left: none;
+    border-right: 1px solid var(--border-soft);
+    overflow-x: hidden;
+}
+body.ui-ltr .divider { grid-column: 2; grid-row: 1; }
+body.ui-ltr .panel-col { grid-column: 3; grid-row: 1; }
+body.ui-ltr .tabs-col::before {
+    left: auto;
+    right: -1px;
+    border-left: none;
+    border-right: 2px solid var(--hazard);
+}
+body.ui-ltr .tabs-col::after {
+    right: auto;
+    left: -1px;
+    border-right: none;
+    border-left: 2px solid var(--hazard);
+}
+body.ui-ltr .tab {
+    border-right: none;
+    border-left: 2px solid transparent;
+}
+body.ui-ltr .tab.active {
+    border-right: none;
+    border-left: 2px solid var(--hazard);
+}
+body.ui-ltr #text_alignment .seg-buttons {
+    /* The source order is Right, Center, Left for Arabic. */
+    flex-direction: row-reverse;
+}
+body.ui-ltr .slider-info {
+    flex-basis: 182px;
+    justify-content: space-between;
+}
+body.ui-ltr .slider-value { text-align: right; }
+body.ui-ltr .footer {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+}
+body.ui-ltr .footer-center {
+    justify-content: flex-end;
+}
+body.ui-ltr .footer-spacer { display: none; }
+
+/* Subtle blueprint grid on the whole page — only while the settings panel is
+   open (body.panel-open toggled by bindings.js). Hidden otherwise so the
+   startup banner never shows it over the whole screen. */
+body.panel-open::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 48px),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 48px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+button {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+
+input, select {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: rgba(226, 129, 47, 0.25); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(226, 129, 47, 0.5); }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ============== Startup Banner (top-center) ==============
+   Mod branding shown on game start: logo image + F10/F11 hints.
+   Fully adaptive: all sizes scale as (viewportHeight / 1080) via
+   BannerConfig (banner_config.h) injected by UltralightManager.
+   The CSS below is a responsive fallback (before JS injection) using
+   viewport units so the shape stays identical on 720p/1080p/4K.
+   When animation ends, bindings.js sets window.__bannerDone and the
+   native side stops rendering the closed overlay entirely. */
+#hud-banner {
+    position: fixed;
+    top: 8vh; /* overridden by BannerConfig::kTopPct via JS */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(8px, 1.1vh, 14px);
+    text-align: center;
+    pointer-events: none;
+    z-index: 1;
+    animation: banner-lifecycle 6s ease forwards;
+    filter: drop-shadow(0 4px 24px rgba(0, 0, 0, 0.65));
+    /* adaptive container — no fixed max-width, shrinks/grows with viewport */
+    width: auto;
+    max-width: 92vw;
+}
+
+/* Logo + title side by side — gap scales with viewport height */
+.banner-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(10px, 1.3vh, 16px);
+}
+
+#banner-logo {
+    /* fallback adaptive sizes — JS will override with exact (76.8*scale) */
+    max-width: clamp(48px, 7vh, 96px);
+    max-height: clamp(48px, 7vh, 96px);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    /* Match the wiki logo's SVG corner radius (rx=22 on a 100px canvas). */
+    border-radius: 22%;
+}
+
+.banner-title {
+    font-family: var(--arabic);
+    /* fallback: ~3.3vh at 1080p = 36px — fully adaptive */
+    font-size: clamp(20px, 3.3vh, 48px);
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--hazard-bright);
+    text-shadow:
+        0 0 18px rgba(226, 129, 47, 0.45),
+        0 2px 10px rgba(0, 0, 0, 0.9);
+    white-space: nowrap;
+}
+
+.banner-hints {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(8px, 1.25vh, 16px);
+    font-family: var(--arabic);
+    font-size: clamp(11px, 1.55vh, 20px);
+    font-weight: 600;
+    color: var(--text-dim);
+    background: rgba(7, 9, 11, 0.72);
+    border: 1px solid rgba(226, 129, 47, 0.28);
+    border-radius: 999px;
+    padding: clamp(4px, 0.55vh, 8px) clamp(12px, 1.65vh, 22px);
+    white-space: nowrap;
+}
+
+.banner-hints .hint {
+    display: inline-flex;
+    align-items: center;
+    gap: clamp(4px, 0.6vh, 8px);
+}
+
+.banner-hints .kbd {
+    font-family: var(--mono);
+    font-size: clamp(10px, 1.33vh, 17px);
+    font-weight: 700;
+    color: var(--hazard-bright);
+    background: rgba(226, 129, 47, 0.12);
+    border: 1px solid rgba(226, 129, 47, 0.45);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    padding: 1px 8px;
+}
+
+.banner-hints .hint-sep {
+    color: var(--hazard-dim);
+    font-size: clamp(10px, 1.1vh, 14px);
+}
+
+#banner-translation {
+    color: var(--hev-bright);
+}
+
+@keyframes banner-lifecycle {
+    0%   { opacity: 0; transform: translate(-50%, -12px); }
+    8%   { opacity: 1; transform: translate(-50%, 0); }
+    75%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* ============== App Panel (36% width, language-side anchored) ============== */
+
+.app {
+    position: fixed;
+    top: 0;
+    right: 0;               /* Arabic is anchored to the RIGHT edge */
+    width: 36vw;            /* 36% of the screen width — wider to fit the
+                               inline label|value|slider layout from the
+                               reference design without cramping */
+    max-width: 720px;       /* but never wider than the reference card */
+    min-width: 420px;       /* and never narrower than the compact layout */
+    height: 100vh;
+    display: grid;
+    grid-template-rows: 7px auto auto 1fr 4px auto;
+    overflow: hidden;
+    /* Hidden by default (off-screen to the language-side edge). The page now renders even
+       while the overlay is "closed" (startup banner), so without this the
+       settings panel would be visible at game start. panelOpen() (F10) slides
+       it in via .open-anim; closePanel() slides it back out. */
+    transform: translateX(100%);
+    /* Solid bg first, then the orange tint overlay. Two separate properties
+       so the underlying color is guaranteed opaque (otherwise the radial
+       gradient layer can let the game show through). */
+    background-color: var(--app-bg);
+    background-image:
+        radial-gradient(1200px 400px at 80% -10%, rgba(226, 129, 47, 0.10), transparent 60%);
+    box-shadow:
+        -30px 0 90px -30px rgba(0, 0, 0, 0.85),
+        -1px 0 0 var(--border);
+    z-index: 1;
+}
+
+/* Faint scanlines over the whole panel. */
+.app::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 3px);
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    z-index: 2;
+}
+
+/* Glowing accent line on the panel's screen-facing edge. */
+.app::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent, var(--hev) 25%, var(--hev) 75%, transparent);
+    opacity: 0.55;
+    box-shadow: 0 0 14px rgba(75, 185, 168, 0.45);
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* Slide-in from the Arabic side (replayed by JS each time the panel opens). */
+.app.open-anim {
+    animation: panel-slide-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Slide-out to the Arabic side (played before the native side hides the overlay). */
+.app.closing {
+    animation: none;
+    transition: transform 280ms cubic-bezier(0.55, 0, 0.55, 0.2);
+    transform: translateX(100%);
+}
+
+/* Animations disabled (ui_animations = off in the settings). */
+.app.no-anim {
+    animation: none !important;
+    transition: none !important;
+}
+
+@keyframes panel-slide-in {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(0); }
+}
+
+/* English mirrors the panel: it is anchored on the LEFT and enters/exits
+   from that edge, while the settings column moves to the RIGHT of the tabs. */
+body.ui-ltr .app {
+    left: 0;
+    right: auto;
+    transform: translateX(-100%);
+    box-shadow:
+        30px 0 90px -30px rgba(0, 0, 0, 0.85),
+        1px 0 0 var(--border);
+    background-image:
+        radial-gradient(1200px 400px at 20% -10%, rgba(226, 129, 47, 0.10), transparent 60%);
+}
+body.ui-ltr .app::before {
+    left: auto;
+    right: 0;
+}
+body.ui-ltr .app.open-anim {
+    animation-name: panel-slide-in-left;
+}
+body.ui-ltr .app.closing {
+    transform: translateX(-100%);
+}
+@keyframes panel-slide-in-left {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(0); }
+}
+
+/* ============== Hazard Stripe Cap ============== */
+
+.hazard-bar {
+    height: 7px;
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--hazard) 0 10px,
+        #14100a 10px 20px
+    );
+    opacity: 0.85;
+}
+
+/* ============== Top Bar ============== */
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border-soft);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent);
+    position: relative;
+    z-index: 3;
+}
+
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.topbar-left  { display: flex; align-items: center; gap: 10px; }
+
+.brand {
+    font-family: var(--tech);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 1.5px;
+    color: #dfe3e0;
+}
+
+.brand-badge {
+    font-family: var(--arabic);
+    font-weight: 800;
+    font-size: 13px;
+    color: #140d05;
+    background: linear-gradient(180deg, var(--hazard-bright), var(--hazard));
+    padding: 6px 12px;
+    letter-spacing: 1px;
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+/* F-key pill buttons */
+.key-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #0f1214;
+    border: 1px solid var(--border);
+    color: #adb6b3;
+    font-family: var(--arabic);
+    font-size: 13px;
+    padding: 6px 10px 6px 8px;
+    cursor: pointer;
+    transition: border-color var(--transition), color var(--transition);
+    clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+}
+
+.key-btn:hover { border-color: var(--hev); color: #fff; }
+
+/* "on" state (toggled by the تبديل button — cosmetic). */
+.key-btn.on {
+    border-color: var(--hev);
+    color: #fff;
+    box-shadow: 0 0 10px rgba(75, 185, 168, 0.25);
+}
+
+.key-btn .key {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--hev-bright);
+    border: 1px solid #24403c;
+    background: #0a1211;
+    padding: 2px 6px;
+    line-height: 1.4;
+}
+
+/* ============== Header / Title ============== */
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 28px 24px 22px;
+    border-bottom: 1px solid var(--border-soft);
+    position: relative;
+    z-index: 3;
+}
+
+.header-title { text-align: right; min-width: 0; }
+
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--hev-bright);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.eyebrow::before {
+    content: "";
+    width: 16px;
+    height: 1px;
+    background: var(--hev-bright);
+}
+
+.header-title h1 {
+    margin: 0 0 10px;
+    font-size: 29px;
+    font-weight: 900;
+    color: #f4f1ea;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 24px rgba(226, 129, 47, 0.15);
+    animation: flicker-in .9s ease-out;
+}
+
+@keyframes flicker-in {
+    0%   { opacity: 0; }
+    8%   { opacity: 1; }
+    12%  { opacity: 0.2; }
+    20%  { opacity: 1; }
+    28%  { opacity: 0.4; }
+    36%  { opacity: 1; }
+    100% { opacity: 1; }
+}
+
+.header-sub {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--hazard);
+    letter-spacing: 0.3px;
+    direction: ltr;
+    text-align: right;
+    unicode-bidi: plaintext;
+}
+
+.header-sub b { font-weight: 600; color: var(--hazard-bright); }
+
+.stat-sep { color: var(--text-dim); opacity: 0.6; }
+
+/* Targeting-reticle frame around the wordmark */
+.reticle {
+    position: relative;
+    width: 120px;
+    height: 74px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+}
+
+.reticle .corner {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--hev);
+    opacity: 0.8;
+}
+
+.reticle .corner.tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+.reticle .corner.tr { top: 0; right: 0; border-left: none; border-bottom: none; }
+.reticle .corner.bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+.reticle .corner.br { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+.watermark {
+    font-family: var(--tech);
+    font-weight: 700;
+    font-size: 26px;
+    line-height: 1.15;
+    color: var(--text-faint);
+    letter-spacing: 6px;
+    user-select: none;
+    text-align: center;
+}
+
+/* ============== Main (settings column | divider | tabs) ============== */
+
+.main {
+    /* LTR grid order like the reference design: settings column first (LEFT),
+       tabs column second (RIGHT). Inner columns stay RTL.
+       Tabs are narrower than the settings side. */
+    direction: ltr;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 1px 170px;
+    min-height: 0;
+    position: relative;
+    z-index: 3;
+}
+
+.divider { background: var(--border-soft); }
+
+.panel-col {
+    direction: rtl;
+    text-align: right;
+    padding: 24px 24px 32px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    /* gap is applied between sections (when more than one is visible);
+       the section itself stacks its own cards with a 26px gap. */
+    gap: 26px;
+    background-color: var(--app-bg);
+}
+
+/* Active section switching (driven by bindings.js).
+   The section is a flex column so the cards inside get a vertical gap.
+   Otherwise the parent .panel-col's gap only applies between sibling
+   sections (of which only one is .active at a time), so the cards would
+   visually touch each other. */
+.panel-col section {
+    display: none;
+    flex-direction: column;
+    gap: 26px;
+    animation: section-in 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.panel-col section.active {
+    display: flex;
+}
+
+@keyframes section-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============== Notched Cards ============== */
+
+.card.notched {
+    position: relative;
+    background-color: var(--panel-bg);
+    border: 1px solid var(--border);
+    padding: 20px 22px;
+    /* margin-bottom handled by parent's flex gap */
+}
+
+/* HUD corner brackets (top-left / bottom-right) */
+.card.notched::before,
+.card.notched::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: var(--hazard-dim);
+    z-index: 2;
+}
+
+.card.notched::before {
+    top: -1px; left: -1px;
+    border-top: 2px solid var(--hazard);
+    border-left: 2px solid var(--hazard);
+}
+
+.card.notched::after {
+    bottom: -1px; right: -1px;
+    border-bottom: 2px solid var(--hazard);
+    border-right: 2px solid var(--hazard);
+}
+
+.card h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px;
+    font-size: 15.5px;
+    font-weight: 700;
+    color: #eceef1;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card h2::before {
+    content: "»";
+    color: var(--hazard);
+    font-family: var(--tech);
+    font-weight: 700;
+}
+
+.card-body { padding: 0; }
+
+/* ============== Sliders ============== */
+
+/* Inline slider-row layout (matches reference design):
+   [label] [value] [slider fills remaining space].
+   The slider-info wrapper is rendered as a single flex row instead of the
+   older stacked layout (label+value above, slider below). */
+.slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+}
+.slider-row + .slider-row {
+    border-top: 1px solid var(--border-soft);
+}
+.slider-row:last-child { padding-bottom: 0; }
+.slider-row:first-child { padding-top: 0; }
+
+.slider-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+    min-width: 0;
+}
+
+.slider-label {
+    color: #dfe3e0;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.slider-value {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--hazard-bright);
+    min-width: 64px;
+    direction: ltr;
+    text-align: left;
+}
+
+.slider-row > input[type="range"] {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* Range input — diamond hazard thumb, filled track (painted by JS).
+   NOTE: the track pseudo is transparent so the input's own gradient
+   background shows through as the fill. */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--hazard) 0%, var(--hazard-bright) 50%, #262d2e 50%, #262d2e 100%);
+    border: none;
+    border-radius: 0;
+    outline: none;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    direction: ltr;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 3px;
+    background: transparent;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 2px;
+    background: #171b1c;
+    border: 2px solid var(--hazard);
+    transform: rotate(45deg);
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--hazard-glow);
+    margin-top: -6px;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    border-color: var(--hazard-bright);
+    box-shadow: 0 0 14px var(--hazard-glow);
+}
+
+input[type="range"]::-moz-range-track {
+    height: 3px;
+    background: #262d2e;
+}
+
+input[type="range"]::-moz-range-progress {
+    height: 3px;
+    background: var(--hazard);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 13px;
+    height: 13px;
+    border-radius: 2px;
+    background: #171b1c;
+    border: 2px solid var(--hazard);
+    transform: rotate(45deg);
+    cursor: pointer;
+}
+
+/* Color sliders — static channel gradients (JS skips these). */
+.color-r { background: linear-gradient(90deg, #000, #f00) !important; }
+.color-g { background: linear-gradient(90deg, #000, #0f0) !important; }
+.color-b { background: linear-gradient(90deg, #000, #00f) !important; }
+
+/* Tight slider (used inside a parent row) */
+.slider-row.tight {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.slider-row.tight input[type="range"] { flex: 1; }
+.slider-row.tight .slider-value { min-width: 50px; text-align: center; }
+
+/* ============== Toggle Switch ============== */
+
+.toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding: 4px 0;
+    gap: 12px;
+}
+
+.toggle-row:last-child { margin-bottom: 0; }
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 22px;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.switch-track {
+    position: absolute;
+    inset: 0;
+    background: #202627;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: var(--transition);
+}
+
+.switch-knob {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 14px;
+    height: 14px;
+    background: var(--text-dim);
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.switch input:checked + .switch-track {
+    background: rgba(226, 129, 47, 0.18);
+    border-color: var(--hazard);
+    box-shadow: 0 0 10px var(--hazard-glow);
+}
+
+.switch input:checked + .switch-track .switch-knob {
+    background: var(--hazard);
+    right: 23px;
+    box-shadow: 0 0 8px var(--hazard-glow);
+}
+
+/* ============== Text Input / Select ============== */
+
+.text-input-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 6px 0;
+}
+
+.text-input-row:last-child { margin-bottom: 0; }
+
+.text-input-row .slider-label {
+    flex: 0 0 auto;
+    min-width: 96px;
+    text-align: right;
+}
+
+.text-input {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+    background: #0f1214;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    direction: ltr;
+    text-align: left;
+    transition: border-color var(--transition);
+}
+
+.text-input:focus {
+    border-color: var(--hazard);
+    box-shadow: 0 0 8px rgba(226, 129, 47, 0.18);
+    outline: none;
+}
+
+/* ============== Custom HTML dropdowns (.fdrop) ==============
+   Replaces native <select> elements: the WebKit popup of a native select
+   requires view focus that the embedded view loses in-game, so the FIRST
+   click never opened its list. These are plain HTML button + list — they
+   open on the first click no matter what (no WebKit popup involved).
+   Unified with Resistance Terminal dark theme: clipped corners, hazard glow,
+   hev accents, fixed positioning to escape overflow clipping. */
+
+.fdrop {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+.fdrop-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    background: #0f1214;
+    color: var(--text);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--arabic);
+    font-size: 13px;
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    transition: border-color var(--transition), box-shadow var(--transition), background var(--transition), color var(--transition);
+}
+
+.fdrop-btn:hover,
+.fdrop.open .fdrop-btn {
+    border-color: var(--hazard);
+    box-shadow: 0 0 10px var(--hazard-glow);
+    background: #111517;
+}
+
+.fdrop-btn:focus-visible {
+    outline: 2px solid var(--hazard);
+    outline-offset: 2px;
+}
+
+.fdrop-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Chevron arrow (pure CSS, no images). */
+.fdrop-arrow {
+    flex: 0 0 auto;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid var(--text-dim);
+    transition: transform var(--transition), border-top-color var(--transition);
+}
+
+.fdrop.open .fdrop-arrow {
+    transform: rotate(180deg);
+    border-top-color: var(--hazard-bright);
+}
+
+.fdrop-list {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 4px 0;
+    list-style: none;
+    background: #0f1214;
+    border: 1px solid var(--border);
+    border-top-color: var(--hazard-dim);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(226, 129, 47, 0.12);
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 60;
+}
+
+.fdrop.open .fdrop-list {
+    display: block;
+}
+
+.fdrop-list::-webkit-scrollbar { width: 6px; }
+.fdrop-list::-webkit-scrollbar-thumb { background: rgba(226, 129, 47, 0.25); border-radius: 3px; }
+.fdrop-list::-webkit-scrollbar-thumb:hover { background: rgba(226, 129, 47, 0.5); }
+.fdrop-list::-webkit-scrollbar-track { background: transparent; }
+
+.fdrop-item {
+    padding: 7px 12px;
+    color: #adb6b3;
+    background-color: transparent;
+    cursor: pointer;
+    font-family: var(--arabic);
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background var(--transition), color var(--transition), border-color var(--transition);
+    border-right: 2px solid transparent;
+}
+
+.fdrop-item:hover {
+    background: rgba(226, 129, 47, 0.12);
+    color: #fff;
+    border-right-color: var(--hazard);
+}
+
+.fdrop-item.selected {
+    background: linear-gradient(180deg, var(--hazard-bright), var(--hazard-dim));
+    color: #140d05;
+    font-weight: 700;
+    box-shadow: 0 0 12px rgba(226, 129, 47, 0.25);
+    border-right-color: var(--hazard);
+}
+
+.fdrop-item.selected:hover {
+    filter: brightness(1.05);
+}
+
+/* Font-file pickers: file names render in mono, LTR. */
+.fdrop.font-select .fdrop-btn,
+.fdrop.font-select .fdrop-item {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    direction: ltr;
+    text-align: left;
+}
+
+/* Language picker follows the selected interface language. */
+#ui_language .fdrop-btn,
+#ui_language .fdrop-item {
+    font-family: var(--arabic);
+    direction: rtl;
+    text-align: right;
+}
+body.ui-ltr #ui_language .fdrop-btn,
+body.ui-ltr #ui_language .fdrop-item {
+    direction: ltr;
+    text-align: left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fdrop-btn, .fdrop-item, .fdrop-arrow { transition: none; }
+}
+
+.app.compact .fdrop-btn { padding: 7px 10px; font-size: 12px; }
+.app.compact .fdrop-item { padding: 6px 10px; font-size: 12px; }
+
+/* ============== Segmented Control (clip-path buttons) ============== */
+
+.seg-control {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.seg-label {
+    color: #dfe3e0;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.seg-buttons {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+}
+
+.seg-btn {
+    flex: 0 0 auto;
+    font-family: var(--arabic);
+    font-size: 13px;
+    color: #adb6b3;
+    background: #0f1214;
+    border: 1px solid var(--border);
+    padding: 9px 22px;
+    cursor: pointer;
+    transition: all var(--transition);
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+.seg-btn:hover {
+    border-color: var(--hev);
+    color: #fff;
+}
+
+.seg-btn.selected {
+    background: linear-gradient(180deg, var(--hazard-bright), var(--hazard-dim));
+    border-color: var(--hazard);
+    color: #140d05;
+    font-weight: 700;
+    box-shadow: 0 0 14px rgba(226, 129, 47, 0.3);
+}
+
+/* ============== Color Preview Large ============== */
+
+.color-preview-large {
+    width: 100%;
+    height: 68px;
+    margin-bottom: 14px;
+    border: 1px solid var(--border);
+    background: rgb(255, 255, 255);
+    color: rgba(0, 0, 0, 0.7);
+    font-weight: 800;
+    font-size: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.4);
+    transition: background 120ms linear;
+}
+
+/* ============== Tab List ============== */
+
+.tabs-col {
+    direction: rtl;
+    text-align: right;
+    background: linear-gradient(180deg, #0b0e11 0%, #0d1013 100%);
+    border-left: 1px solid var(--border-soft);
+    padding: 18px 16px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: relative;
+    min-width: 0;
+}
+
+/* HUD corner brackets on the tab column (top-left / bottom-right). */
+.tabs-col::before,
+.tabs-col::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: var(--hazard-dim);
+    z-index: 2;
+    pointer-events: none;
+}
+
+.tabs-col::before {
+    top: -1px; left: -1px;
+    border-top: 2px solid var(--hazard);
+    border-left: 2px solid var(--hazard);
+}
+
+.tabs-col::after {
+    bottom: -1px; right: -1px;
+    border-bottom: 2px solid var(--hazard);
+    border-right: 2px solid var(--hazard);
+}
+
+.tab {
+    width: 100%;
+    display: flex;
+    flex-direction: row-reverse;  /* RTL: Arabic label on the RIGHT, icon/dot on the LEFT */
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    border-right: 2px solid transparent;
+    padding: 12px 10px;
+    margin-bottom: 2px;
+    font-family: var(--arabic);
+    font-size: 13.5px;
+    color: #b7bfbc;
+    text-align: right;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+
+.tab:hover { background: #12171a; color: #fff; }
+
+.tab .tab-icon {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--hev);
+    min-width: 16px;
+    text-align: center;
+}
+
+.tab .dot {
+    width: 6px;
+    height: 6px;
+    flex: 0 0 auto;
+}
+
+.tab.active {
+    background: #180f06;
+    border-right: 2px solid var(--hazard);
+    color: #f3e9dc;
+    font-weight: 700;
+}
+
+.tab.active .tab-icon { color: var(--hazard-bright); font-weight: 700; }
+
+.tab.active .dot {
+    background: var(--hazard-bright);
+    box-shadow: 0 0 8px rgba(243, 154, 73, 0.9);
+}
+
+/* ============== Footer Stripe + Action Bar ============== */
+
+.footer-stripe {
+    height: 4px;
+    background: repeating-linear-gradient(-45deg, var(--hev) 0 8px, #0a1211 8px 16px);
+    opacity: 0.6;
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 22px 22px;
+    background: linear-gradient(180deg, #0b0e11 0%, var(--app-bg) 100%);
+    position: relative;
+    z-index: 3;
+}
+#btn-preview {
+    flex: 0 0 auto;
+}
+.footer-center {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+.footer-spacer {
+    flex: 1;
+}
+
+.btn {
+    font-family: var(--arabic);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 11px 22px;
+    cursor: pointer;
+    background: transparent;
+    transition: all var(--transition);
+    clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+    white-space: nowrap;
+}
+
+.btn-red {
+    border: 1.5px solid var(--rose);
+    color: var(--rose);
+}
+
+.btn-red:hover { background: rgba(214, 99, 109, 0.1); }
+
+.btn-orange {
+    border: 1.5px solid var(--hazard);
+    background: linear-gradient(180deg, var(--hazard-bright), var(--hazard));
+    color: #ffffff;
+    box-shadow: 0 0 18px rgba(226, 129, 47, 0.25);
+    /* White label with a thin dark rim so the word pops on the orange fill. */
+    -webkit-text-stroke: 0.5px rgba(20, 13, 5, 0.5);
+    font-weight: 800;
+}
+
+.btn-orange:hover { filter: brightness(1.08); }
+
+.btn-hev {
+    border: 1.5px solid var(--hev);
+    color: var(--hev);
+}
+.btn-hev:hover { background: rgba(75,185,168,0.1); border-color: var(--hev-bright); color: var(--hev-bright); }
+.btn-hev.on {
+    background: var(--hev);
+    border-color: var(--hev);
+    color: #0a1211;
+    font-weight: 700;
+}
+
+/* Brief confirmation flash after Save / Reset (toggled by bindings.js). */
+.btn.flash {
+    animation: btn-flash 300ms ease-out;
+}
+
+@keyframes btn-flash {
+    0%   { filter: brightness(1.6); }
+    100% { filter: brightness(1); }
+}
+
+/* ============== Compact mode (narrow panel) ============== */
+
+.app.compact .main { grid-template-columns: minmax(0, 1fr) 1px 140px; }
+body.ui-ltr .app.compact .main { grid-template-columns: 140px 1px minmax(0, 1fr); }
+.app.compact .reticle { display: none; }
+.app.compact .header { padding: 18px 18px 14px; gap: 8px; }
+.app.compact .header-title h1 { font-size: 21px; }
+.app.compact .header-sub { font-size: 11px; }
+.app.compact .eyebrow { font-size: 9.5px; letter-spacing: 2px; margin-bottom: 6px; }
+.app.compact .panel-col { padding: 14px 16px 22px; gap: 14px; }
+.app.compact .card.notched { padding: 14px 16px; }
+.app.compact .card h2 { font-size: 14px; margin-bottom: 10px; }
+.app.compact .slider-label { font-size: 13px; }
+.app.compact .slider-value { font-size: 13px; min-width: 56px; }
+.app.compact .slider-row { padding: 8px 0; gap: 8px; }
+.app.compact .slider-info { gap: 8px; }
+body.ui-ltr .app.compact .slider-info { flex-basis: 160px; }
+.app.compact .tabs-col { padding: 12px 10px; }
+.app.compact .tab { padding: 10px 10px; font-size: 13px; gap: 8px; }
+.app.compact .footer { gap: 8px; padding: 14px 14px 16px; }
+.app.compact .btn { padding: 9px 14px; font-size: 12.5px; }
+.app.compact .key-btn { font-size: 11.5px; padding: 5px 8px 5px 6px; }
+.app.compact .brand { font-size: 14px; }
+.app.compact .brand-badge { font-size: 11px; padding: 5px 9px; }
+.app.compact .seg-btn { padding: 7px 10px; font-size: 12px; }
+.app.compact .topbar { padding: 10px 16px; }

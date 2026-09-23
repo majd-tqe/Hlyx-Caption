@@ -1,0 +1,62 @@
+name: Release readiness
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate legal and privacy boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s LICENSE
+          test -s THIRD_PARTY_NOTICES.md
+          test "$(node -p "require('./package.json').license")" = "GPL-3.0-or-later"
+
+          forbidden="$(git ls-files | grep -Ei '(^|/)(AGENT\.md|test_harness/)|(^|/)(arial|HalfLifeETR)\.ttf$|\.pfx$|\.p12$|\.key$' || true)"
+          if [ -n "$forbidden" ]; then
+            echo "Forbidden release paths found:"
+            echo "$forbidden"
+            exit 1
+          fi
+
+          private_drive='D:'
+          private_projects='Custom_Projects'
+          private_users='C:/Users'
+          private_user='Lenovo'
+          cert_root='C:'
+          cert_name='MyCert'
+          private_mail_local='lastmajd'
+          private_mail_domain='gmail.com'
+          private_mail="${private_mail_local}@${private_mail_domain}"
+          if git grep -n -I -E "${private_drive}[\\/]${private_projects}|${private_users}/${private_user}|${cert_root}[\\/]${cert_name}\\.pfx|${private_mail}" -- . ':!package-lock.json' ':!.github/workflows/release-readiness.yml'; then
+            echo "Personal path or credential-like text found."
+            exit 1
+          fi
+
+      - name: Verify history has no known private strings
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Each Actions step runs in a new shell; reconstruct the values here.
+          cert_root='C:'
+          cert_name='MyCert'
+          private_mail_local='lastmajd'
+          private_mail_domain='gmail.com'
+          private_mail="${private_mail_local}@${private_mail_domain}"
+          if git log --all --format='%an <%ae> %cn <%ce>' | grep -Fi "$private_mail"; then
+            echo "Private email address found in commit metadata."
+            exit 1
+          fi
+          if git log --all -S "$private_mail" --oneline | grep .; then exit 1; fi
+          if git log --all -S "${cert_root}\\${cert_name}.pfx" --oneline | grep .; then exit 1; fi

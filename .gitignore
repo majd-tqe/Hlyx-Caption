@@ -1,0 +1,64 @@
+# Build outputs
+x64/
+Debug/
+Release/
+*.obj
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.dll
+*.exe
+*.recipe
+*.tlog
+*.log
+*.lastbuildstate
+*.FileListAbsolute.txt
+*.aps
+*.user
+
+# IDE / tool state
+.vs/
+.openchamber/
+.playwright-mcp/
+ipch/
+
+# Diagnostic images
+*.bmp
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# OS files
+Thumbs.db
+.DS_Store
+# --- Wiki (VitePress) ---
+node_modules/
+docs/wiki/.vitepress/dist/
+docs/wiki/.vitepress/cache/
+# Keep VitePress source configuration and theme files tracked. Only generated
+# caches and build output should be ignored.
+docs/wiki/ar/
+
+# Proprietary SDK files are acquired locally and must not be committed.
+HlyxCaption/vendor/Ultralight/
+
+# Local game/Steam harnesses and release-only binary payloads.
+test_harness/
+release/
+
+# Credentials and local configuration.
+.env
+.env.*
+*.pfx
+*.p12
+*.pem
+*.key
+*.cer
+!HlyxCaption/dist/resources/cacert.pem
+
+# VitePress build output
+.wiki/.vitepress/dist/
+docs/wiki/.vitepress/dist/

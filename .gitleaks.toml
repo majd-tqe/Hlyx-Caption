@@ -1,0 +1,13 @@
+title = "Hlyx Caption Gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+  [[rules.allowlists]]
+  description = "Dear ImGui key-range expression; it contains no credential."
+  condition = "AND"
+  paths = ['''HlyxCaption/imgui/imgui\.cpp''']
+  stopwords = ['''ImGuiKey_Keypad0''']

@@ -1,0 +1,492 @@
+:root {
+  --vp-c-brand-1: #ff7a18;
+  --vp-c-brand-2: #e66a0a;
+  --vp-c-brand-3: #cc5e09;
+  --vp-c-brand-soft: rgba(255,122,24,0.14);
+}
+
+.VPHero .VPImage { filter: drop-shadow(0 20px 40px rgba(255,122,24,0.25)); }
+
+/* ── Arabic font ── */
+html[lang="ar"] {
+  font-family: 'Tajawal', 'IBM Plex Sans Arabic', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+html[dir="rtl"] .VPNavBarTitle .title,
+html[lang="ar"] .VPNavBarTitle .title {
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 700;
+}
+html[lang="ar"] .vp-doc h1,
+html[lang="ar"] .vp-doc h2,
+html[lang="ar"] .vp-doc h3,
+html[lang="ar"] .vp-doc h4 {
+  font-family: 'Tajawal', sans-serif;
+  letter-spacing: 0;
+}
+
+/* ── Base RTL ── */
+html[dir="rtl"] {
+  direction: rtl;
+}
+html[dir="rtl"] body {
+  text-align: right;
+}
+
+/* ── Title: the bar mirrors (title column docks right, logo stays at the
+   outer edge); only the English site-name fragment is LTR-isolated.
+   (Forcing the whole title block to `direction:ltr` would un-mirror it
+   back to the English layout instead of opposing it.) ── */
+html[dir="rtl"] .VPNavBarTitle .title > span {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+/* Logo vs title gap in RTL: flip */
+html[dir="rtl"] .VPNavBarTitle .logo {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+/* ── VitePress RTL polyfill ──────────────────────────────────────
+   NOTE: selectors intentionally use `html[dir="rtl"]` (NOT `:where`)
+   because VitePress v2 scopes its own rules with `[data-v-xxxx]`
+   (e.g. `.VPContent.has-sidebar[data-v-cd1fde9c]` = 0,3,0).
+   `:where()` contributes zero specificity so those overrides lose.
+   `html[dir="rtl"] ...` adds an element + attribute and wins.      */
+
+/* Doc content */
+html[dir="rtl"] .vp-doc .header-anchor {
+  margin-right: -0.87em;
+  margin-left: 0;
+  right: 0;
+  left: auto;
+}
+html[dir="rtl"] .vp-doc blockquote {
+  border-left: none;
+  border-right: 2px solid var(--vp-c-divider);
+  padding-left: 0;
+  padding-right: 16px;
+}
+html[dir="rtl"] .vp-doc ul,
+html[dir="rtl"] .vp-doc ol {
+  padding-left: 0;
+  padding-right: 1.25rem;
+}
+html[dir="rtl"] .vp-doc .task-list-item-checkbox {
+  margin: 0 -1.25rem 0.125rem 0.25rem;
+}
+html[dir="rtl"] .vp-doc th {
+  text-align: right;
+}
+/* Mobile-only bleed rule in LTR is scoped to small screens — mirror it the same way */
+@media not all and (width >= 40rem) {
+  html[dir="rtl"] .vp-doc li div[class*="language-"] {
+    border-radius: 0 0.5rem 0.5rem 0;
+  }
+}
+html[dir="rtl"] .vp-doc [class*="language-"] code .diff::before {
+  right: 0.625rem;
+  left: auto;
+}
+html[dir="rtl"] .vp-doc div[class*="language-"].line-numbers-mode {
+  padding-left: 0;
+  padding-right: 2rem;
+}
+html[dir="rtl"] :is(.vp-external-link-icon, .vp-doc a[href*="://"], .vp-doc a[target="_blank"]):not(:is(.no-icon, svg a, :has(img, svg)))::after {
+  margin-left: 0;
+  margin-right: 0.25rem;
+  padding-left: 0;
+  padding-right: 0.6875rem;
+  transform: scaleX(-1);
+}
+html[dir="rtl"] .VPBadge {
+  margin-left: 0;
+  margin-right: 0.125rem;
+}
+html[dir="rtl"] .vp-doc h1 > .VPBadge,
+html[dir="rtl"] .vp-doc h2 > .VPBadge {
+  margin: 0 0.125rem 0 0;
+}
+
+/* Layout: Sidebar & Content.
+   Breakpoints mirror VitePress v2 (`width >= 60rem` / `width >= 90rem`).
+   No base (mobile) content padding: on mobile the sidebar is off-canvas. */
+html[dir="rtl"] .VPSidebar {
+  left: auto;
+  right: 0;
+  border-left: none;
+  border-right: 1px solid var(--vp-c-divider);
+  transform: translate(100%);
+}
+html[dir="rtl"] .VPSidebar.open {
+  transform: translate(0);
+}
+@media (width >= 60rem) {
+  html[dir="rtl"] .VPSidebar {
+    transform: translate(0);
+  }
+  html[dir="rtl"] .VPContent.has-sidebar {
+    padding-left: 0;
+    padding-right: var(--vp-sidebar-width);
+  }
+  html[dir="rtl"] .VPLocalNav.has-sidebar {
+    padding-left: 0;
+    padding-right: var(--vp-sidebar-width);
+  }
+}
+@media (width >= 90rem) {
+  html[dir="rtl"] .VPContent.has-sidebar {
+    padding-left: calc((100% - var(--vp-layout-max-width)) / 2);
+    padding-right: calc((100% - var(--vp-layout-max-width)) / 2 + var(--vp-sidebar-width));
+  }
+  html[dir="rtl"] .VPSidebar {
+    padding-left: 0;
+    padding-right: max(2rem, calc((100% - (var(--vp-layout-max-width) - 4rem)) / 2));
+    width: calc((100% - (var(--vp-layout-max-width) - 4rem)) / 2 + var(--vp-sidebar-width) - 2rem);
+  }
+}
+/* VPDoc layout: aside / content — scoped to avoid leaking to outline internals.
+   (DOM order is aside-then-content; `order: 2` + `dir=rtl` flex auto-mirrors,
+   so aside lands on the left in RTL — no order override needed.) */
+html[dir="rtl"] .VPDoc .aside {
+  padding-left: 0;
+  padding-right: 2rem;
+}
+html[dir="rtl"] .VPDocAside .content {
+  border-left: none;
+  border-right: 1px solid var(--vp-c-divider);
+  padding-left: 0;
+  padding-right: 1rem;
+}
+html[dir="rtl"] .VPDocAside .outline-marker {
+  right: -1px;
+  left: auto;
+}
+html[dir="rtl"] .outline-link.nested {
+  padding-left: 0;
+  padding-right: 0.8125rem;
+}
+html[dir="rtl"] .VPDocAsideOutline .content {
+  border-left: none;
+  border-right: 1px solid var(--vp-c-divider);
+  padding-left: 0;
+  padding-right: 1rem;
+}
+
+/* Nav — full logical mirror of the LTR bar (title right, controls left) */
+/* Background surface: the sidebar-column offset lives on the RTL side
+   (LTR paints `left: var(--offset)`; without this the opaque bar leaves
+   a wrong-background strip on sidebar pages). */
+html[dir="rtl"] .VPNavBar::before {
+  left: 0;
+  right: var(--vp-nav-col-offset);
+}
+/* Mobile wrapper padding: the 1.5rem stays on the title side (right) */
+html[dir="rtl"] .VPNavBar .wrapper {
+  padding: 0 1.5rem 0 0.5rem;
+}
+@media (min-width: 48rem) {
+  html[dir="rtl"] .VPNavBar .wrapper {
+    padding: 0 2rem;
+  }
+}
+/* Search clings to the title side when no growing menu absorbs space */
+@media (min-width: 48rem) {
+  html[dir="rtl"] .VPNavBar .content-body > .search {
+    margin-right: 0;
+    margin-left: auto;
+  }
+}
+/* Hidden overflow measurer anchors to the RTL start edge */
+html[dir="rtl"] .VPNavBar .content-body > .collapsed {
+  left: auto;
+  right: 0;
+}
+/* Edge negative margin: flips to the left edge */
+html[dir="rtl"] .VPNavBar .social-links {
+  margin-right: 0;
+  margin-left: -0.5rem;
+}
+/* Divider-dot asymmetric gaps mirror (LTR pads 1rem on one side) */
+html[dir="rtl"] .VPNavBar .content-body > :where(.menu, .translations) + .appearance::before {
+  margin-right: 0.5rem;
+  margin-left: 1rem;
+}
+html[dir="rtl"] .VPNavBar .content-body > .appearance + .social-links::before {
+  margin-right: 1rem;
+  margin-left: 0.5rem;
+}
+/* Flyout chevron gap (lang / “···” buttons) flips */
+html[dir="rtl"] .VPFlyout .text-icon {
+  margin-left: 0;
+  margin-right: 0.25rem;
+}
+html[dir="rtl"] .VPNavBarExtra {
+  margin-right: 0;
+  margin-left: -0.75rem;
+}
+html[dir="rtl"] .VPSkipLink {
+  left: auto;
+  right: 0.5rem;
+}
+@media (width >= 80rem) {
+  html[dir="rtl"] .VPSkipLink {
+    left: auto;
+    right: 1rem;
+  }
+}
+html[dir="rtl"] .VPNavBarSearch {
+  padding-left: 0;
+  padding-right: 0;
+}
+@media (width >= 48rem) {
+  html[dir="rtl"] .VPNavBarSearch {
+    padding-left: 0;
+    padding-right: 1.5rem;
+  }
+}
+@media (width >= 60rem) {
+  html[dir="rtl"] .VPNavBarSearch {
+    padding-left: 0;
+    padding-right: 2rem;
+  }
+}
+/* VPNavBar inner cols */
+html[dir="rtl"] .VPNavBar .divider {
+  padding-right: var(--vp-nav-col-offset);
+  padding-left: 0;
+}
+html[dir="rtl"] .VPNavBar.has-sidebar .divider::before {
+  left: auto;
+  right: calc(var(--vp-nav-col-offset) - var(--vp-sidebar-width) + 2rem);
+}
+html[dir="rtl"] .VPNavBarMenu .list > li.collapsed {
+  left: auto;
+  right: 0;
+}
+/* Hamburger stagger mirrors as a whole: flipping the container mirrors the
+   resting stagger plus the hover/active slides together (per-state
+   translate overrides would mirror hover but leave the resting stagger
+   LTR, or double-mirror). */
+html[dir="rtl"] .VPNavBarHamburger .container {
+  transform: scaleX(-1);
+}
+
+/* Translations dropdown label (has a physical divider padding in LTR) */
+html[dir="rtl"] .VPNavBarTranslations .title {
+  padding: 0 0.75rem 0 1.5rem;
+}
+
+/* Mobile nav-screen menu (physical indents in LTR) */
+html[dir="rtl"] .VPNavScreen .link {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+html[dir="rtl"] .VPNavScreenTranslations .list {
+  padding: 0.25rem 1.5rem 0 0;
+}
+html[dir="rtl"] .VPNavScreenTranslations .icon.lang {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+html[dir="rtl"] .VPNavScreenTranslations .icon.chevron {
+  margin-left: 0;
+  margin-right: 0.25rem;
+}
+
+/* Dropdown menu sub-groups (physical left border in LTR) */
+html[dir="rtl"] .VPMenuGroup .sub-groups {
+  border-left: none;
+  border-right: 1px solid var(--vp-c-divider);
+  margin: 0.25rem 0.75rem 0.25rem 0;
+  padding-left: 0;
+  padding-right: 0.25rem;
+}
+/* Dropdown menu rows: LTR hard-codes `text-align:left`, which strands the
+   links on the left edge while the menu title ("العربية") sits right —
+   rows must align to the RTL edge like the English menu mirrors. */
+html[dir="rtl"] .VPMenuLink .link {
+  text-align: right;
+}
+
+/* Flyout menus (translations + "···" Extra) are `position:absolute; right:0`
+   in LTR. In RTL those buttons sit at the LEFT edge of the bar, so a
+   right-anchored (even invisible: opacity-0) menu sticks ~140px past the
+   viewport and expands the whole page. Left-anchor instead — always safe
+   because RTL flyout buttons are the leftmost nav items. */
+html[dir="rtl"] .VPFlyout .menu {
+  left: 0;
+  right: auto;
+}
+
+/* Hero: LTR is centered on mobile, left-aligned on desktop —
+   so RTL stays centered on mobile and right-aligns on desktop. */
+html[dir="rtl"] .VPHero .VPImage {
+  direction: ltr;
+}
+@media (width >= 60rem) {
+  html[dir="rtl"] .VPHero.has-image .container {
+    text-align: right;
+  }
+  html[dir="rtl"] .VPHero.has-image .main {
+    text-align: right;
+  }
+}
+
+/* Doc footer pager — flip prev/next */
+html[dir="rtl"] .pager-link.next {
+  text-align: left;
+  margin-left: 0;
+  margin-right: auto;
+}
+html[dir="rtl"] .pager-link.prev {
+  text-align: right;
+}
+html[dir="rtl"] .edit-link-icon {
+  margin-right: 0;
+  margin-left: 8px;
+}
+
+/* Sidebar items */
+/* One glow at a time: a bare page link (`/configuration`) matches its own
+   route whatever the hash is, so it lights up together with an active
+   section (hash) link of the same page. When a section link is active,
+   keep the page link quiet (parent-like) instead of fully lit.
+   (`:not(:hover)` preserves hover feedback. Not RTL-specific — applies
+   to both locales — but lives here with the other sidebar overrides.) */
+html .VPSidebar .items > li:has(> .VPSidebarItem.is-active > .item > .link[href*="#"])
+  > .VPSidebarItem.is-active > .item > .link:not([href*="#"]):not(:hover) > .text {
+  color: var(--vp-c-text-1);
+}
+html[dir="rtl"] .VPSidebarItem.collapsed .caret-icon {
+  transform: rotate(180deg);
+}
+html[dir="rtl"] .VPSidebarItem.level-1 .items,
+html[dir="rtl"] .VPSidebarItem.level-2 .items,
+html[dir="rtl"] .VPSidebarItem.level-3 .items,
+html[dir="rtl"] .VPSidebarItem.level-4 .items,
+html[dir="rtl"] .VPSidebarItem.level-5 .items {
+  border-left: none;
+  border-right: 1px solid var(--vp-c-divider);
+  padding-left: 0;
+  padding-right: 1rem;
+}
+/* Active-link indicator sits in the gutter outside the item, on the same
+   side as the nested-list border (LTR: `left:calc(-1rem - 1px)`). */
+html[dir="rtl"] .VPSidebarItem .indicator {
+  left: auto;
+  right: calc(-1rem - 1px);
+}
+/* Collapse toggle is an in-flow flex item with a negative LTR margin. */
+html[dir="rtl"] .VPSidebarItem .caret {
+  margin-right: 0;
+  margin-left: -0.4375rem;
+}
+
+/* Search hotkey cluster (Ctrl+K kbd pair) stays LTR inside RTL.
+   NOTE: VitePress v2 renamed the element to `.keys`
+   (`.DocSearch-Button-Keys` is v1/Algolia and matches nothing). */
+html[dir="rtl"] .VPNavBarSearchButton .keys {
+  direction: ltr;
+}
+/* Local search modal — directional glyphs mirror in RTL:
+   the breadcrumb separator (chevron-right = “deeper”) must point left,
+   and the back/close arrow (arrow-left) must point right. Symmetric
+   icons (search, arrows up/down, layout, delete) are untouched. */
+html[dir="rtl"] .VPLocalSearchBox .titles .vpi-chevron-right,
+html[dir="rtl"] .VPLocalSearchBox .back-button .vpi-arrow-left {
+  transform: scaleX(-1);
+}
+
+/* ── Content LTR isolation ── */
+/* Code blocks: always LTR, left-aligned (copy button + lang label live
+   inside this LTR island, so they keep their LTR placement). */
+html[dir="rtl"] .vp-doc div[class*="language-"] pre,
+html[dir="rtl"] .vp-doc div[class*="language-"] code {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: embed;
+}
+html[dir="rtl"] .vp-doc div[class*="language-"] {
+  direction: ltr;
+}
+/* Inline code inside RTL prose: isolate as LTR but keep it wrappable.
+   (Older revision used `display: inline-block` here which killed line
+   wrapping and caused long paths like `C:\vcpkg\...` to overflow.) */
+html[dir="rtl"] .vp-doc :not(pre) > code {
+  direction: ltr;
+  unicode-bidi: isolate;
+  overflow-wrap: anywhere;
+}
+html[dir="rtl"] .vp-doc code {
+  font-family: var(--vp-font-family-mono);
+}
+/* Mermaid diagrams: always LTR */
+html[dir="rtl"] .vp-doc .mermaid,
+html[dir="rtl"] .vp-doc pre.mermaid {
+  direction: ltr;
+  text-align: left;
+}
+/* Tables: header right, code LTR.
+   Table code stays ONE unbreakable unit (`white-space: nowrap`): the theme
+   gives tables their own horizontal scroll (`overflow-x: auto`), so tokens
+   must size their columns like LTR — `overflow-wrap: anywhere` instead let
+   auto-layout crush code columns and split single keys across two lines. */
+html[dir="rtl"] .vp-doc table {
+  direction: rtl;
+}
+html[dir="rtl"] .vp-doc table code,
+html[dir="rtl"] .vp-doc table .vp-code {
+  direction: ltr;
+  unicode-bidi: isolate;
+  white-space: nowrap;
+}
+/* NOTE: VitePress v2 custom-blocks use a symmetric full border
+   (no physical left accent), so no RTL border override is needed. */
+
+/* ── Arabic typography refinements ── */
+html[lang="ar"] .vp-doc p,
+html[lang="ar"] .vp-doc li {
+  line-height: 1.9;
+  font-size: 15.5px;
+}
+html[lang="ar"] .vp-doc h1 { line-height: 1.3; }
+html[lang="ar"] .vp-doc h2 { line-height: 1.4; }
+html[lang="ar"] .vp-doc table {
+  font-size: 14px;
+}
+html[lang="ar"] .vp-doc blockquote p {
+  font-size: 15px;
+}
+
+/* ── Grid / Features RTL ── */
+html[dir="rtl"] .VPFeatures .items {
+  direction: rtl;
+}
+html[dir="rtl"] .VPFeatures .VPFeature {
+  text-align: right;
+}
+html[dir="rtl"] .VPFeatures .VPFeature .icon {
+  text-align: right;
+}
+html[dir="rtl"] .grid {
+  direction: rtl;
+}
+html[dir="rtl"] .grid .card {
+  text-align: right;
+}
+
+/* ── Hero actions RTL ── */
+html[dir="rtl"] .VPHero .actions {
+  direction: rtl;
+  justify-content: flex-start;
+}
+html[dir="rtl"] .VPHero .VPButton {
+  direction: rtl;
+}
+
+/* ── Ensure English fragments inside Arabic stay LTR ── */
+html[dir="rtl"] .vp-doc a,
+html[dir="rtl"] .vp-doc strong code,
+html[dir="rtl"] .vp-doc em code {
+  unicode-bidi: isolate;
+}

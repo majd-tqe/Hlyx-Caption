@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Core Mod">
+      <UniqueIdentifier>{33db0d15-ea2d-4022-aaf9-29d612161fab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering">
+      <UniqueIdentifier>{7b381b84-ce7a-43db-a7d6-f0e953778839}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Captions">
+      <UniqueIdentifier>{a79373dd-681a-408f-9d56-96b3e646c3a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Text Shaping">
+      <UniqueIdentifier>{3cab98d3-0bdf-43d0-b6d0-2c1b044d2f28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{bbbfa1a5-a015-43dc-bc29-6d0e41894378}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Ultralight">
+      <UniqueIdentifier>{cd442970-5cd1-4e45-b97f-a2051a728d0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third Party">
+      <UniqueIdentifier>{659f9c5c-292d-4f22-8b20-eb8ef9030bde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third Party\imgui">
+      <UniqueIdentifier>{37a8fe28-87cb-487f-aab0-ec6e1c27d44d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third Party\MinHook">
+      <UniqueIdentifier>{f150bb1d-c9e2-4872-9096-1ec260f05282}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{479f78fc-9717-4a38-82f3-12cdcce503e1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="proxy.cpp">
+      <Filter>Core Mod</Filter>
+    </ClCompile>
+    <ClCompile Include="hooks.cpp">
+      <Filter>Core Mod</Filter>
+    </ClCompile>
+    <ClCompile Include="config_parse.cpp">
+      <Filter>Core Mod</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="caption_parser.cpp">
+      <Filter>Captions</Filter>
+    </ClCompile>
+    <ClCompile Include="caption_queue.cpp">
+      <Filter>Captions</Filter>
+    </ClCompile>
+    <ClCompile Include="caption_texture.cpp">
+      <Filter>Captions</Filter>
+    </ClCompile>
+    <ClCompile Include="shaper.cpp">
+      <Filter>Text Shaping</Filter>
+    </ClCompile>
+    <ClCompile Include="arabic_fallback.cpp">
+      <Filter>Text Shaping</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_ultralight\UltralightManager.cpp">
+      <Filter>UI\Ultralight</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_ultralight\UltralightPlatform.cpp">
+      <Filter>UI\Ultralight</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_ultralight\UltralightBlit.cpp">
+      <Filter>UI\Ultralight</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_ultralight\ui_exports.cpp">
+      <Filter>UI\Ultralight</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook-detours-src\MinHook.c">
+      <Filter>Third Party\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook-detours-src\SlimDetours\Transaction.c">
+      <Filter>Third Party\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook-detours-src\SlimDetours\Trampoline.c">
+      <Filter>Third Party\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook-detours-src\SlimDetours\Thread.c">
+      <Filter>Third Party\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook-detours-src\SlimDetours\Memory.c">
+      <Filter>Third Party\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook-detours-src\SlimDetours\Disassembler.c">
+      <Filter>Third Party\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook-detours-src\SlimDetours\Instruction.c">
+      <Filter>Third Party\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook-detours-src\SlimDetours\InlineHook.c">
+      <Filter>Third Party\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui.cpp">
+      <Filter>Third Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_draw.cpp">
+      <Filter>Third Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_tables.cpp">
+      <Filter>Third Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_widgets.cpp">
+      <Filter>Third Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\backends\imgui_impl_win32.cpp">
+      <Filter>Third Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\backends\imgui_impl_dx11.cpp">
+      <Filter>Third Party\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\misc\cpp\imgui_stdlib.cpp">
+      <Filter>Third Party\imgui</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="config.h">
+      <Filter>Core Mod</Filter>
+    </ClInclude>
+    <ClInclude Include="config_parse.h">
+      <Filter>Core Mod</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="shaper.h">
+      <Filter>Text Shaping</Filter>
+    </ClInclude>
+    <ClInclude Include="arabic_fallback.h">
+      <Filter>Text Shaping</Filter>
+    </ClInclude>
+    <ClInclude Include="arabic_fallback_data.h">
+      <Filter>Text Shaping</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_ultralight\UltralightManager.h">
+      <Filter>UI\Ultralight</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_ultralight\UltralightPlatform.h">
+      <Filter>UI\Ultralight</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_ultralight\UltralightBlit.h">
+      <Filter>UI\Ultralight</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_ultralight\ui_exports.h">
+      <Filter>UI\Ultralight</Filter>
+    </ClInclude>
+    <ClInclude Include="banner_config.h">
+      <Filter>UI\Ultralight</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imconfig.h">
+      <Filter>Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui.h">
+      <Filter>Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_internal.h">
+      <Filter>Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_rectpack.h">
+      <Filter>Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_textedit.h">
+      <Filter>Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_truetype.h">
+      <Filter>Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\backends\imgui_impl_win32.h">
+      <Filter>Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\backends\imgui_impl_dx11.h">
+      <Filter>Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\misc\cpp\imgui_stdlib.h">
+      <Filter>Third Party\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="version.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

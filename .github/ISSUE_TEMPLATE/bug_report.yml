@@ -1,0 +1,30 @@
+name: Bug report
+description: Report a reproducible compatibility or runtime problem.
+body:
+  - type: markdown
+    attributes:
+      value: Do not attach certificates, game files, private paths, or unredacted hook logs.
+  - type: input
+    id: version
+    attributes:
+      label: Hlyx Caption version or commit
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include Windows, game, GPU, and build configuration.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Redacted logs
+      description: Remove usernames, absolute paths, module addresses, and game data before attaching.
