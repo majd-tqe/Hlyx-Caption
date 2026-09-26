@@ -217,6 +217,10 @@ void Renderer::UpdateQueue(float dt) {
         // <sb> parts sit in the queue with a future startQPC; fading them in
         // before their window starts would leave them fully opaque at pop-in.
         if (now < e.startQPC) continue;
+        if (e.isSfx) {
+            e.opacity = 1.0f;
+            continue;
+        }
         if (e.opacity >= 1.0f) continue;
 
         e.opacity += dt / g_Config.fade_in_time;
@@ -287,6 +291,7 @@ void Renderer::SetCaptionText(const std::string& text, float duration, bool from
         CaptionEntry entry;
         entry.fromPlayer = fromPlayer;
         entry.opacity = 0.0f;
+        entry.isSfx = text.find("<sfx>") != std::string::npos;
         entry.phrases = ParseCaptionText(text, fromPlayer);
         entry.duration = duration + g_Config.extra_display_time;
         entry.startQPC = GetTimeQPC();
@@ -365,6 +370,7 @@ void Renderer::SetCaptionText(const std::string& text, float duration, bool from
             CaptionEntry entry;
             entry.fromPlayer = fromPlayer;
             entry.opacity = 0.0f;
+            entry.isSfx = sbParts[i].find("<sfx>") != std::string::npos;
             entry.phrases = ParseCaptionText(sbParts[i], fmtState, fromPlayer);
             entry.duration = partDuration + g_Config.extra_display_time;
             entry.startQPC = baseQPC + cumulativeTime;

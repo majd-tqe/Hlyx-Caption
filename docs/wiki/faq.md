@@ -5,9 +5,13 @@
 | Key | Action | Notes |
 |---|---|---|
 | **F10** | Toggle settings panel | Checked on `WM_KEYDOWN` **and** `WM_SYSKEYDOWN` (F10 is system key). |
-| **F11** | Toggle caption visibility | Flips `m_OverlayVisible` → `window.hlaBanner.setTranslationVisible` |
+| **F11** | Toggle all caption visibility | Flips `m_OverlayVisible` → `window.hlaBanner.setTranslationVisible`, independent of SFX filtering. |
 
 Startup banner shows once per session; native stops rendering closed overlay after `window.__bannerDone`.
+
+## How do I hide sound-effect captions?
+
+The mod follows the game's live `cc_subtitles` ConVar, not a mod INI or panel option. When its integer value is nonzero, any incoming raw caption containing exact `<sfx>` is discarded **in full** before splitting `<sb>` parts (including mixed SFX/dialogue captions). Otherwise SFX entries appear immediately after their scheduled start and fade out normally; the parser silently strips `<sfx>` as an unknown tag. If the ConVar pointer cannot be found, SFX stays visible. F11 hides all captions regardless of this setting.
 
 ## My settings revert after Save
 
@@ -20,6 +24,8 @@ Byte patterns in `hooks.cpp` are fragile — check `wininet_hook.log` for “sig
 ```
 F3 0F 11 5C 24 ? 48 89 54 24
 ```
+
+If only SFX filtering stops working, check the separate `cc_subtitles` pointer discovery in `client.dll`'s `Process`; `IsSfxHidden()` reads its integer at `+0x58` on each check and defaults to showing SFX if discovery fails.
 
 ## Build fails
 

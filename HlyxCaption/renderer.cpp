@@ -15,6 +15,7 @@
 #include "ui_ultralight/UltralightManager.h"
 #include "ui_ultralight/UL_Debug.h"
 #include <cmath>
+#include <cstring>
 #ifdef _DEBUG
 #include <iostream>
 #endif
@@ -86,6 +87,7 @@ std::atomic<bool> Renderer::m_Initialized = false;
 std::atomic<bool> Renderer::m_ImguiInitialized = false;
 std::atomic<bool> Renderer::m_SettingsOpen{false};
 std::atomic<bool> Renderer::m_OverlayVisible{true};
+std::atomic<void**> Renderer::m_cc_subtitlesGlobal{nullptr};
 ID3D11Device* Renderer::m_Device = nullptr;
 ID3D11DeviceContext* Renderer::m_Context = nullptr;
 ID3D11RenderTargetView* Renderer::m_BackBufferRTV = nullptr;
@@ -111,6 +113,38 @@ double GetTimeQPC() {
     QueryPerformanceCounter(&now);
     if (g_QPCFreq.QuadPart <= 0) return 0.0;
     return (double)(now.QuadPart - g_QPCStart.QuadPart) / g_QPCFreq.QuadPart;
+}
+
+// The game owns both the global slot and the ConVar it points to. A missing
+// or unreadable pointer should leave SFX visible.
+static bool IsReadableGameMemory(const void* address, size_t length) {
+    MEMORY_BASIC_INFORMATION mbi = {};
+    if (!address || VirtualQuery(address, &mbi, sizeof(mbi)) != sizeof(mbi) ||
+        mbi.State != MEM_COMMIT || (mbi.Protect & (PAGE_NOACCESS | PAGE_GUARD)))
+        return false;
+    const DWORD access = mbi.Protect & 0xff;
+    if (access != PAGE_READONLY && access != PAGE_READWRITE &&
+        access != PAGE_WRITECOPY && access != PAGE_EXECUTE_READ &&
+        access != PAGE_EXECUTE_READWRITE && access != PAGE_EXECUTE_WRITECOPY)
+        return false;
+    const uintptr_t start = reinterpret_cast<uintptr_t>(address);
+    const uintptr_t end = reinterpret_cast<uintptr_t>(mbi.BaseAddress) + mbi.RegionSize;
+    return end >= start && length <= end - start;
+}
+
+bool IsSfxHidden() {
+    void** global = Renderer::m_cc_subtitlesGlobal.load(std::memory_order_acquire);
+    if (!IsReadableGameMemory(global, sizeof(void*))) return false;
+    void* cv = nullptr;
+    std::memcpy(&cv, global, sizeof(cv));
+    if (!cv) return false;
+    const uintptr_t cvAddress = reinterpret_cast<uintptr_t>(cv);
+    if (cvAddress > UINTPTR_MAX - 0x58) return false;
+    const void* value = reinterpret_cast<const void*>(cvAddress + 0x58);
+    if (!IsReadableGameMemory(value, sizeof(int))) return false;
+    int ccSubtitles = 0;
+    std::memcpy(&ccSubtitles, value, sizeof(ccSubtitles));
+    return ccSubtitles != 0;
 }
 
 float GetScaledFontSize(float baseSize) {
@@ -977,7 +1011,7 @@ static void ToggleSettingsPanel(HWND hWnd) {
         // thread (ImGui is not thread-safe). We only track plain floats
         // and let hkPresent apply them to io.MousePos / MouseDrawCursor
         // on the next present.
-        // Sync the topbar F11 button label with the current translation
+        // Sync the topbar F11 button label with the current caption
         // state (applied on the render thread via ConsumePendingCaptionVisible).
         const float displayW = g_DisplayWidth.load(std::memory_order_acquire);
         const float displayH = g_DisplayHeight.load(std::memory_order_acquire);

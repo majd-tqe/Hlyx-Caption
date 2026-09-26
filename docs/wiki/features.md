@@ -6,7 +6,7 @@
 
 <div class="grid">
   <div class="card"><h4>◈ Arabic-Correct Captions</h4><p>FriBidi bidi → HarfBuzz shaping → FreeType raster per-entry. Ligatures, joining, mixed RTL/LTR on one line.</p></div>
-  <div class="card"><h4>◈ Per-Entry Textures</h4><p>Word-wrap → composite RGBA → <code>DXGI_FORMAT_R8G8B8A8_UNORM_SRGB</code> upload. Outline ring, shadow, background box, stacked animation.</p></div>
+  <div class="card"><h4>◈ Per-Entry Textures</h4><p>Word-wrap → composite RGBA → <code>DXGI_FORMAT_R8G8B8A8_UNORM_SRGB</code> upload. Outline ring, shadow, background box, stacked animation. SFX appears without fade-in.</p></div>
   <div class="card"><h4>◈ HTML Settings Panel</h4><p>F10. Ultralight offscreen <code>View → Bitmap → D3D11 quad</code>. Live edits, Save/Reset/Preview.</p></div>
 </div>
 
@@ -14,8 +14,9 @@
 
 | Capability | Where | Notes |
 |---|---|---|
-| Subtitle interception | `hooks.cpp:hkProcess` | Sig-scan `client.dll`, straight to `SetCaptionText` |
+| Subtitle interception | `hooks.cpp:hkProcess` | Sig-scan `client.dll`; check live `cc_subtitles` and drop the whole raw caption if hidden and it contains exact `<sfx>`, before `SetCaptionText` |
 | Tag grammar | `caption_parser.cpp` | `<clr>`, `<playerclr>`, `<I>/<B>`, `<cr>`, `<delay>`, `<sb>` |
+| SFX timing | `caption_queue.cpp` | Per-`<sb>`-part `isSfx` flag; instant appearance after scheduled start, normal fade-out. Parser silently strips `<sfx>` as an unknown tag |
 | Shaping | `shaper.cpp` + `arabic_fallback.cpp` | 731-entry presentation-forms table |
 | Font switching | `renderer.cpp:ReloadFontPreserveQueue` | Detects INI drift, preserves queue |
 | Desktop compositing | `renderer.cpp:hkPresent` | `UpdateQueue → DrawCaptions → Ultralight → Cursor` |
@@ -24,9 +25,11 @@
 
 ```mermaid
 flowchart LR
-    A[client.dll Process] --> B[hkProcess passes to SetCaptionText]
-    B --> C[Parse tags]
-    C --> D[CaptionEntry queue]
+    A[client.dll Process] --> B[hkProcess checks raw &lt;sfx&gt;, then cc_subtitles if tagged]
+    B -- "nonzero + exact tag" --> X[Drop entire raw caption]
+    B -- "otherwise" --> C[SetCaptionText splits &lt;sb&gt; and flags isSfx per part]
+    C --> P[Parse tags, strip &lt;sfx&gt;]
+    P --> D[CaptionEntry queue]
     D --> E[UpdateQueue expiry+stacking]
     E --> F[RenderEntryTexture wrap+shape]
     F --> G[DrawCaptions AddImage]
@@ -34,6 +37,8 @@ flowchart LR
 ```
 
 See [Architecture](architecture.md) and [Caption Pipeline](modules/caption-pipeline.md) for the full flow.
+
+SFX follows the game's `cc_subtitles` value at runtime (read from its ConVar integer at `+0x58`); if lookup fails, SFX remains visible. There is no separate mod INI or panel setting. F11 hides **all** captions independently.
 
 ## Settings Panel (F10)
 

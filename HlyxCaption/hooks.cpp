@@ -140,6 +140,23 @@ static size_t SafeCStringLength(const char* text, size_t maxLength) {
     return maxLength;
 }
 
+static uintptr_t FindPatternInRange(uintptr_t start, size_t size, const char* pattern) {
+    const auto bytes = PatternToBytes(pattern);
+    if (bytes.empty() || bytes.size() > size) return 0;
+    const auto* data = reinterpret_cast<const uint8_t*>(start);
+    for (size_t i = 0; i <= size - bytes.size(); ++i) {
+        bool found = true;
+        for (size_t j = 0; j < bytes.size(); ++j) {
+            if (bytes[j] != -1 && data[i + j] != bytes[j]) {
+                found = false;
+                break;
+            }
+        }
+        if (found) return start + i;
+    }
+    return 0;
+}
+
 uintptr_t FindSignature(const char* moduleName, const char* pattern) {
     HMODULE hModule = GetModuleHandleA(moduleName);
     if (!hModule) return 0;
@@ -160,6 +177,31 @@ uintptr_t FindSignature(const char* moduleName, const char* pattern) {
         if (found) return reinterpret_cast<uintptr_t>(&scanBytes[i]);
     }
     return 0;
+}
+
+static void** FindCcSubtitlesGlobal(uintptr_t processAddr) {
+    HMODULE module = GetModuleHandleA("client.dll");
+    MODULEINFO mi = {};
+    if (!module || !GetModuleInformation(GetCurrentProcess(), module, &mi, sizeof(mi)) ||
+        mi.SizeOfImage < sizeof(void*)) return nullptr;
+
+    const uintptr_t base = reinterpret_cast<uintptr_t>(mi.lpBaseOfDll);
+    if (processAddr < base || processAddr - base >= mi.SizeOfImage) return nullptr;
+    const size_t range = std::min<size_t>(0x908, mi.SizeOfImage - (processAddr - base));
+    // mov rcx, [rip+disp32] ... cmp dword ptr [rcx+58h], 0
+    const uintptr_t cvAddr = FindPatternInRange(
+        processAddr, range, "48 8B 0D ?? ?? ?? ?? 0F B6 D8 83 79 58 00");
+    if (!cvAddr) return nullptr;
+
+    int32_t disp = 0;
+    std::memcpy(&disp, reinterpret_cast<const void*>(cvAddr + 3), sizeof(disp));
+    const int64_t target = static_cast<int64_t>(cvAddr) + 7 + disp;
+    if (target < static_cast<int64_t>(base) ||
+        static_cast<uint64_t>(target - static_cast<int64_t>(base)) >
+            mi.SizeOfImage - sizeof(void*)) return nullptr;
+    // Keep the slot address, not its current value: the game may replace the
+    // ConVar pointer later, so IsSfxHidden reads through the slot each time.
+    return reinterpret_cast<void**>(static_cast<uintptr_t>(target));
 }
 
 // -------------------------------------------------------------------
@@ -337,10 +379,18 @@ void __fastcall hkProcess(void* pThis, void* stream, float duration, const char*
     size_t len = SafeCStringLength(static_cast<const char*>(stream), 16384);
     if (len > 0) {
         std::string raw(static_cast<const char*>(stream), len);
+        // Filter the incoming event before <sb> splitting, as in the source
+        // version: an SFX tag in any part hides the entire event.
+        if (raw.find("<sfx>") != std::string::npos && IsSfxHidden()) {
 #ifdef _DEBUG
-        std::cout << "[UTF-8] \"" << raw << "\"\n";
+            std::cout << "[SFX] hidden (cc_subtitles enabled)\n";
 #endif
-        Renderer::SetCaptionText(raw, duration, fromplayer);
+        } else {
+#ifdef _DEBUG
+            std::cout << "[UTF-8] \"" << raw << "\"\n";
+#endif
+            Renderer::SetCaptionText(raw, duration, fromplayer);
+        }
     }
 #ifdef _DEBUG
     else {
@@ -518,6 +568,13 @@ DWORD WINAPI MainThread(LPVOID lpParam) {
         Sleep(500);
     }
     if (addr) {
+        Renderer::m_cc_subtitlesGlobal.store(FindCcSubtitlesGlobal(addr), std::memory_order_release);
+#ifdef _DEBUG
+        if (Renderer::m_cc_subtitlesGlobal.load(std::memory_order_acquire))
+            std::cout << "[+] Found cc_subtitles global\n";
+        else
+            std::cout << "[-] cc_subtitles ConVar not found; SFX will remain visible.\n";
+#endif
         if (MH_CreateHook((LPVOID)addr, &hkProcess, (LPVOID*)&oProcess) == MH_OK) {
             MH_EnableHook((LPVOID)addr);
 #ifdef _DEBUG

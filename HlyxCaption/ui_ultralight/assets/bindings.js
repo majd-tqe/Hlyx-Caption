@@ -72,8 +72,8 @@
             "brand.title": "Hlyx Caption",
             "brand.badge": "SETTINGS",
             "hints.settings": "Settings",
-            "translation.enabled": "Translation enabled",
-            "translation.disabled": "Translation disabled",
+            "translation.enabled": "Caption enabled",
+            "translation.disabled": "Caption disabled",
             "actions.close": "Close",
             "actions.preview": "Preview",
             "actions.save": "Save",
@@ -487,7 +487,7 @@ function wireDrop(id, numeric) {
         if (el) el.addEventListener("input", updateColorPreview);
     });
 
-    // ============== HL translation toggle ==============
+    // ============== Caption visibility toggle ==============
     // The native Renderer owns the state. A click only raises a one-shot
     // request; UltralightManager consumes it on the render thread and then
     // sends the authoritative state back through setTranslationVisible().
@@ -653,7 +653,7 @@ function wireDrop(id, numeric) {
 
     // ============== Startup banner ==============
     // Native side (UltralightManager) updates the F11 hint label to reflect
-    // whether the translation overlay is currently visible. All calls happen
+    // whether the caption overlay is currently visible. All calls happen
     // on the render thread via EvaluateScript (thread-safe by design).
     window.hlaBanner = {
         setTranslationVisible: function (v) {
@@ -662,7 +662,7 @@ function wireDrop(id, numeric) {
             // Startup banner hint (top-center).
             const hint = document.getElementById("banner-translation");
             if (hint) hint.textContent = label;
-            // Topbar F11 button — shows the live translation state.
+            // Topbar F11 button — shows the live caption state.
             const btn = document.getElementById("btn-hl-toggle");
             if (btn) {
                 const label = btn.querySelector("span:first-child");

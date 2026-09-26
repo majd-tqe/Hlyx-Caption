@@ -32,7 +32,7 @@ Logs: `wininet_hook.log` next to host exe. `_DEBUG` also `AllocConsole`.
 
 ## Versioning
 
-- The Windows DLL version is defined in `HlyxCaption/version.rc` (`0.9.4.0`). Keep the `package.json` and `vcpkg.json` package versions (`0.9.4`) synchronized when updating the project version.
+- The Windows DLL version is defined in `HlyxCaption/version.rc` (`0.9.5.0`). Keep the `package.json` and `vcpkg.json` package versions (`0.9.5`) synchronized when updating the project version.
 
 ## Editing the Settings UI
 

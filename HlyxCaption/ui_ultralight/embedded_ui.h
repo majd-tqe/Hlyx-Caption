@@ -1864,8 +1864,8 @@ body.ui-ltr .app.compact .slider-info { flex-basis: 160px; }
             "brand.title": "Hlyx Caption",
             "brand.badge": "SETTINGS",
             "hints.settings": "Settings",
-            "translation.enabled": "Translation enabled",
-            "translation.disabled": "Translation disabled",
+            "translation.enabled": "Caption enabled",
+            "translation.disabled": "Caption disabled",
             "actions.close": "Close",
             "actions.preview": "Preview",
             "actions.save": "Save",
@@ -2281,7 +2281,7 @@ function wireDrop(id, numeric) {
         if (el) el.addEventListener("input", updateColorPreview);
     });
 
-    // ============== HL translation toggle ==============
+    // ============== Caption visibility toggle ==============
     // The native Renderer owns the state. A click only raises a one-shot
     // request; UltralightManager consumes it on the render thread and then
     // sends the authoritative state back through setTranslationVisible().
@@ -2302,9 +2302,9 @@ function wireDrop(id, numeric) {
         if (!el) return;
         el.classList.remove("flash");
         void el.offsetWidth;          // force reflow -> restart animation
-        el.classList.add("flash");
 )C13"
-    R"C14(    }
+    R"C14(        el.classList.add("flash");
+    }
     // The native side (UltralightManager::Render) polls these flags every
     // frame. Setting them triggers SaveConfig / ResetConfig on the render
     // thread; the native side then calls hlaConfig._clearFlags() to reset.
@@ -2448,7 +2448,7 @@ function wireDrop(id, numeric) {
 
     // ============== Startup banner ==============
     // Native side (UltralightManager) updates the F11 hint label to reflect
-    // whether the translation overlay is currently visible. All calls happen
+    // whether the caption overlay is currently visible. All calls happen
     // on the render thread via EvaluateScript (thread-safe by design).
     window.hlaBanner = {
         setTranslationVisible: function (v) {
@@ -2458,7 +2458,7 @@ function wireDrop(id, numeric) {
             const hint = document.getElementById("banner-translation");
             if (hint) hint.textContent = label;
 )C14"
-    R"C15(            // Topbar F11 button — shows the live translation state.
+    R"C15(            // Topbar F11 button — shows the live caption state.
             const btn = document.getElementById("btn-hl-toggle");
             if (btn) {
                 const label = btn.querySelector("span:first-child");

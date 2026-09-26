@@ -36,7 +36,7 @@ features:
 
 - **Solution:** `HlyxCaption.sln` → single VS2022 C++ project `HlyxCaption/HlyxCaption.vcxproj`
 - **Output:** `wininet.dll` (`TargetName=wininet`, exports in `wininet.def`) — loaded by DLL search-order hijacking next to `hlvr.exe`
-- **Version:** `0.9.4.0` (`version.rc`)
+- **Version:** `0.9.5.0` (`version.rc`)
 - **Language:** C++17, `/utf-8`, Unicode, v143, **x64 only**
 
 ### Key Concepts

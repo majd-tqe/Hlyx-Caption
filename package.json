@@ -1,6 +1,6 @@
 {
   "name": "hlyx_caption",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "Documentation tooling for the Hlyx Caption project",
   "private": true,
   "directories": {

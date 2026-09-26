@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Version 0.9.4" src="https://img.shields.io/badge/version-0.9.4-orange">
+  <img alt="Version 0.9.5" src="https://img.shields.io/badge/version-0.9.5-orange">
   <img alt="Platform Windows x64" src="https://img.shields.io/badge/platform-Windows%20x64-0078D4?logo=windows">
   <img alt="C++ 17" src="https://img.shields.io/badge/C%2B%2B-17-00599C?logo=cplusplus">
   <a href="https://github.com/majd-tqe/Hlyx-Caption/actions/workflows/docs.yml"><img alt="Documentation build status" src="https://github.com/majd-tqe/Hlyx-Caption/actions/workflows/docs.yml/badge.svg?branch=main"></a>
@@ -47,6 +47,9 @@ English.
   shadow, background, timing, and fades.
 - Support for common Valve caption tags such as `<clr>`, `<playerclr>`, `<I>`,
   `<B>`, `<cr>`, `<delay>`, and `<sb>`.
+- `<sfx>` captions follow the game's live `cc_subtitles` setting: when it is
+  nonzero, any raw caption containing the exact tag is dropped in full (even
+  mixed `<sb>` captions); otherwise SFX appears without a fade-in.
 - In-game HTML settings panel with live preview, save, and reset actions.
 - Arabic and English settings UI.
 - Persistent configuration in `resources/settings.ini`.
@@ -142,13 +145,16 @@ Launch the game normally after deployment.
 | Key | Action |
 | --- | --- |
 | `F10` | Open or close the settings panel |
-| `F11` | Show or hide the caption overlay |
+| `F11` | Show or hide all captions, independently of the game's SFX setting |
 
 - Saved settings are written to `resources/settings.ini`.
 - User fonts can be placed in `resources/` as `.ttf`, `.otf`, `.ttc`, `.otc`,
   `.woff`, or `.woff2` files.
 - Runtime and hook diagnostics are written to `wininet_hook.log` next to
   `hlvr.exe`.
+- SFX visibility follows the game's `cc_subtitles` value at runtime; there is
+  no separate mod INI or settings-panel control. If that value cannot be read,
+  SFX captions remain visible.
 
 For every setting and its default value, see the
 [configuration reference](docs/wiki/configuration.md).

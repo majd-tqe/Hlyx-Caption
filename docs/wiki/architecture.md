@@ -36,7 +36,8 @@ flowchart TD
         MainThread --> Config["LoadConfig<br>resources/settings.ini"]
         MainThread --> MHInit["MH_Initialize"]
         MainThread --> User32Hooks["user32 hooks<br>SetCursorPos (enabled); ClipCursor / SetCapture (created)"]
-        MainThread --> SigScan["FindSignature<br>client.dll"]
+        MainThread --> SigScan["FindSignature<br>client.dll caption function"]
+        MainThread --> ConVarScan["Discover cc_subtitles pointer<br>client.dll Process signature"]
         MainThread --> HookPresent["Renderer::Initialize<br>HookPresent<br>swapchain vtable 8+13"]
     end
 
@@ -56,7 +57,11 @@ flowchart TD
     end
 
     ClientDLL --> HKProcess["hkProcess<br>hooks.cpp"]
-    HKProcess --> SetCaption["Renderer::SetCaptionText<br>caption_queue.cpp"]
+    ConVarScan -.-> SfxCheck["IsSfxHidden<br>live ConVar int at +0x58<br>missing pointer: show SFX"]
+    HKProcess -- "raw contains exact &lt;sfx&gt;" --> SfxCheck
+    HKProcess -- "no exact tag" --> SetCaption["Renderer::SetCaptionText<br>caption_queue.cpp<br>isSfx per &lt;sb&gt; part"]
+    SfxCheck -- "nonzero" --> DropSfx["Drop whole caption<br>including mixed &lt;sb&gt; parts"]
+    SfxCheck -- "zero or unavailable" --> SetCaption
     SetCaption --> Parser["ParseCaptionText<br>caption_parser.cpp"]
     Parser --> Queue["m_Queue : vector CaptionEntry<br>guarded by m_CS"]
 
@@ -72,10 +77,10 @@ flowchart TD
 
 ## Data Flow
 
-1. **Boot & hook install** — `hooks.cpp:DllMain` → `MainThread` → `MH_Initialize` → create/enable `SetCursorPos` hook (the `ClipCursor`/`SetCapture` hooks are created but not explicitly enabled in the current bootstrap order) → sig-scan `client.dll` (`F3 0F 11 5C 24 ?` …) → `MH_CreateHook(oProcess)` → `renderer.cpp:HookPresent` (temp window+device vtable patch for `Present`[8]/`Resize`[13]). That signature is the only one `hooks.cpp` scans for; there is no ConVar scan.
+1. **Boot & hook install** — `hooks.cpp:DllMain` → `MainThread` → `MH_Initialize` → create/enable `SetCursorPos` hook (the `ClipCursor`/`SetCapture` hooks are created but not explicitly enabled in the current bootstrap order) → sig-scan `client.dll` for the caption function (`F3 0F 11 5C 24 ?` …) and the `cc_subtitles` ConVar pointer via `Process` → `MH_CreateHook(oProcess)` → `renderer.cpp:HookPresent` (temp window+device vtable patch for `Present`[8]/`Resize`[13]). ConVar lookup failure leaves SFX visible; it does not block the caption hook.
 2. **First Present → ImGui + Ultralight init** — `renderer.cpp:InitImGui`: ImGui context, `ImGui_ImplWin32/DX11_Init`, backbuffer RTV, WndProc subclass, 1×1 blank cursor, `UltralightManager::Initialize`, and Raw Input registration.
-3. **Caption arrives** — game `Process(this, raw, duration, …)` → `hooks.cpp:hkProcess` → `caption_queue.cpp:SetCaptionText` under `m_CS`: split on `<sb>`, `ParseCaptionText` (tags `<clr>`, `<playerclr>`, `<I>/<B>`, `<cr>`, `<delay>`), duration split ∝ visible chars, push `CaptionEntry`; the `rendered*` config snapshot is filled when the entry's texture is built (`RenderEntryTexture`/`UpdateQueue`), not stored at push time.
-4. **Per-frame update** — `caption_queue.cpp:UpdateQueue`: expire by QPC, rebuild and reshape textures when active-phrase signature or config snapshot changes (50 ms throttle for spacing-only), stack `targetY` from `pos_y·H`, ease `visualY` @ 8.0, font-path drift → `ReloadFontPreserveQueue`.
+3. **Caption arrives** — game `Process(this, raw, duration, …)` → `hooks.cpp:hkProcess`: if raw contains exact `<sfx>`, read the live `cc_subtitles` integer at `+0x58`; when nonzero, drop the **entire** raw caption before `SetCaptionText` (even mixed `<sb>` captions). Otherwise `caption_queue.cpp:SetCaptionText` under `m_CS` splits on `<sb>`, flags `isSfx` per part, parses formatting (the parser silently strips `<sfx>` as an unknown tag), splits duration ∝ visible chars, and pushes `CaptionEntry`. The `rendered*` config snapshot is filled when the entry's texture is built (`RenderEntryTexture`/`UpdateQueue`), not stored at push time.
+4. **Per-frame update** — `caption_queue.cpp:UpdateQueue`: expire by QPC, show SFX immediately after its scheduled start without fade-in but use normal fade-out, rebuild and reshape textures when active-phrase signature or config snapshot changes (50 ms throttle for spacing-only), stack `targetY` from `pos_y·H`, ease `visualY` @ 8.0, font-path drift → `ReloadFontPreserveQueue`. F11 independently hides all captions.
 5. **Per-entry texture** — `caption_texture.cpp:RenderEntryTexture`: collect active phrases → greedy word-wrap on ASCII space by measured width → `TextShaper::ShapeLine` per line → composite RGBA buffer (+8 px margin) → upload `ID3D11Texture2D`+SRV. No CPU copy is kept.
 6. **Shaping** — `shaper.cpp:Shape/ShapeLine`: `arabic_fallback::NormalizeForFace` → `SplitDirectionalRuns` (FriBidi bidi types → visual LTR) → `BuildFontSpans` (per-char cmap coverage) → HarfBuzz over whole re-encoded view string → `FT_Load_Glyph(FT_LOAD_RENDER)` 26.6→px → bbox-normalized `GlyphBitmap`s.
 7. **Desktop compositing** — `renderer.cpp:DrawCaptions`: foreground draw-list `AddImage` per entry (outline ring + shadow offsets + `DrawBackgroundBox` when enabled), settings-open edge → `OnPanelOpened`, `DrawSettingsWindow` is an empty no-op (the legacy panel was deleted and only a comment remains), `ImGui::Render`, `UltralightManager::Render` (bitmap→D3D11 quad via `UltralightBlit`), `DrawRealCursor` (user32 arrow extracted via `GetIconInfo`/`GetDIBits`).

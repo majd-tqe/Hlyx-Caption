@@ -520,7 +520,7 @@ void UltralightManager::ConsumePendingCaptionVisible() {
         m_PendingOverlayVisible = false;
     }
     if (!pending) return;
-    // Update the startup banner's F11 hint label ("الترجمة مفعلة" / "الترجمة موقوفة").
+    // Update the startup banner's F11 caption-visibility hint label.
     m_View->EvaluateScript(ul::String(
         value ? "if (window.hlaBanner) window.hlaBanner.setTranslationVisible(true);"
                : "if (window.hlaBanner) window.hlaBanner.setTranslationVisible(false);"));

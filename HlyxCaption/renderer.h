@@ -16,6 +16,7 @@
 class TextShaper;
 
 double GetTimeQPC();
+bool IsSfxHidden();
 float GetScaledFontSize(float baseSize);
 
 struct CaptionRun {
@@ -56,6 +57,7 @@ struct CaptionEntry {
     int lastActivePhraseSig = 0;
     double lastQPC = 0.0;
 
+    bool isSfx = false;
     bool isPreview = false;
 
     float renderedFontSize = 0.0f;
@@ -93,6 +95,9 @@ public:
     // F10 toggles this from the message thread while rendering reads it.
     static std::atomic<bool> m_SettingsOpen;
     static std::atomic<bool> m_OverlayVisible;    // F11: overlay visibility toggle
+    // Address of the game's cc_subtitles global pointer, discovered before
+    // enabling the caption hook. Null means the setting could not be found.
+    static std::atomic<void**> m_cc_subtitlesGlobal;
     static ID3D11Device* m_Device;
     static ID3D11DeviceContext* m_Context;
     static ID3D11RenderTargetView* m_BackBufferRTV;

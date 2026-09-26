@@ -55,6 +55,7 @@ classDiagram
         +float opacity
         +bool expired
         +bool fromPlayer
+        +bool isSfx
         +double visualY
         +double targetY
         +int pixelHeight
@@ -215,6 +216,6 @@ classDiagram
 ## Notes
 
 - `Renderer` is **static-everything** — no instances; `m_CS` (`CRITICAL_SECTION`) guards `m_Queue` and the `TextShaper` it owns. `UltralightManager` is a Meyers singleton with its own `mutex` + `deque<PendingEvent>` so the `View` is single-threaded to the render thread.
-- Caption layering: `CaptionPhrase{lines{runs{text,rgba,bold,italic}}}` — `CaptionFormatState` is the transient parser stack that builds `CaptionRun`s; `caption_texture` rebuilds `TextRun` vectors from those runs for `ShapeLine`. `CaptionEntry` additionally stores a full `OverlayConfig` snapshot (`rendered*`) plus `lastActivePhraseSig`/`lastQPC` to detect when a texture needs rebuilding.
+- Caption layering: `CaptionPhrase{lines{runs{text,rgba,bold,italic}}}` — `CaptionFormatState` is the transient parser stack that builds `CaptionRun`s; `caption_texture` rebuilds `TextRun` vectors from those runs for `ShapeLine`. `CaptionEntry` also has per-entry `isSfx` (set per `<sb>` part before parsing) and stores a full `OverlayConfig` snapshot (`rendered*`) plus `lastActivePhraseSig`/`lastQPC` to detect when a texture needs rebuilding. The parser strips `<sfx>` as an unknown tag; the flag makes SFX appear immediately after scheduled start (no fade-in), without changing fade-out.
 - `TextShaper` exposes only `Shape`/`ShapeLine` (FriBidi→HarfBuzz→FreeType → `ShapedTextResult`); `DirectionalRun` is a private nested struct, and `BuildFontSpans` is a static free function in `shaper.cpp`, not a member. `GetScaledFontSize` is likewise a free function in `renderer.h`, not a `Renderer` member.
 - Vendored `imgui` and `minhook-detours-src` types are omitted — they appear only as `ImDrawList`/`ImGuiContext` consumers and `MH_*` trampoline storage.
