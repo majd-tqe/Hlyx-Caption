@@ -17,6 +17,6 @@
   "license": "GPL-3.0-or-later",
   "type": "commonjs",
   "devDependencies": {
-    "vitepress": "^2.0.0-alpha.20"
+    "vitepress": "^2.0.0-alpha.21"
   }
 }
